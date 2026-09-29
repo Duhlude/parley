@@ -38,6 +38,17 @@
    Paste the CHANGELOG entry into the release notes.
 5. Optional: code-sign the exe files to avoid the SmartScreen warning. This needs a code-signing certificate.
 
+## Releasing a new version (automatic)
+
+`.github/workflows/release.yml` builds and publishes releases on GitHub, so nothing needs uploading by hand:
+
+1. Bump `const version` in `installer/main_windows.go` (and the two `.rc` files), plus the addon's `## Version` if the addon changed. Update CHANGELOG.
+2. Write the release notes in `docs/release-notes/<version>.md` (e.g. `1.6.0.md`).
+3. Commit and push in GitHub Desktop.
+4. Tag that commit with the version (GitHub Desktop: History → right-click the commit → **Create Tag…** → `1.6.0`), then **Push origin** again so the tag goes up.
+
+GitHub then runs the tests, builds `Parley-Setup.exe` and `Parley-addon-<version>.zip`, and publishes the release with the notes (Actions tab shows progress, about 3 minutes). If the tag doesn't match the version in `installer/main_windows.go`, the build stops before publishing anything.
+
 ## CurseForge
 
 1. Create a project for World of Warcraft: name **Parley**, category *Chat & Communication*, license **MIT**.

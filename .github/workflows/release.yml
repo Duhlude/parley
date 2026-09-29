@@ -1,0 +1,73 @@
+# Builds Parley and publishes a GitHub release whenever a version tag is pushed
+# (e.g. 1.6.0 or v1.6.0). Release notes come from docs/release-notes/<version>.md.
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Work out the version
+        id: ver
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          ver="${tag#v}"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          addon=$(grep -m1 '^## Version:' addon/Parley/Parley.toc | awk '{print $3}' | tr -d '\r')
+          echo "addon=$addon" >> "$GITHUB_OUTPUT"
+          if ! grep -q "const version = \"$ver\"" installer/main_windows.go; then
+            echo "::error::installer/main_windows.go says a different version than the tag $tag. Bump it first."
+            exit 1
+          fi
+
+      - name: Test
+        run: |
+          sudo apt-get install -y -qq lua5.1 >/dev/null
+          mkdir -p test/out && (cd test && lua5.1 gen.lua out && lua5.1 ui_test.lua)
+          go test ./...
+
+      - name: Build Parley.exe
+        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H windowsgui" -o Parley.exe .
+
+      - name: Build the installer
+        run: |
+          p=installer/payload
+          rm -rf "$p" && mkdir -p "$p/third_party" "$p/addon"
+          cp Parley.exe parley-mt.exe whisper-cli.exe whisper-cli-LICENSE.txt \
+             README.md INSTALL.txt LICENSE THIRD_PARTY_NOTICES.md PRIVACY.md CHANGELOG.md "$p/"
+          cp third_party/* "$p/third_party/"
+          cp -r addon/Parley "$p/addon/"
+          (cd installer && GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H windowsgui" -o ../Parley-Setup.exe .)
+
+      - name: Zip the addon
+        run: (cd addon && zip -rq -X "../Parley-addon-${{ steps.ver.outputs.addon }}.zip" Parley)
+
+      - name: Release notes
+        run: |
+          f="docs/release-notes/${{ steps.ver.outputs.version }}.md"
+          [ -f "$f" ] || f="docs/release-notes/v${{ steps.ver.outputs.version }}.md"
+          if [ -f "$f" ]; then cp "$f" notes.md; else
+            echo "See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/main/CHANGELOG.md)." > notes.md
+          fi
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Parley ${{ steps.ver.outputs.version }}
+          body_path: notes.md
+          files: |
+            Parley-Setup.exe
+            Parley-addon-${{ steps.ver.outputs.addon }}.zip
