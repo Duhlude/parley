@@ -29,6 +29,12 @@ Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Pa
 - **Skins**: Classic WoW, Retail WoW, Dragonflight UI, WoW chat frame and a modern dark theme.
 - **Safe by design**: the addon uses only Blizzard's standard addon API. The desktop app never reads game memory, injects code or presses keys.
 
+## Skins
+
+Pick a look under Settings → Skin. Menus, dropdowns and the settings window follow the skin too.
+
+![The five Parley skins: Classic WoW, Retail WoW, Dragonflight, WoW chat frame and Parley (modern)](assets/screenshots/06_skins.png)
+
 ## How it works (short version)
 
 WoW addons can't access the internet, so Parley comes in two parts:
