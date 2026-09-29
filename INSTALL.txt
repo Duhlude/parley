@@ -1,0 +1,101 @@
+PARLEY - HOW TO INSTALL
+Live chat translation for World of Warcraft Classic Era (Retail: beta)
+========================================================
+
+You need:
+  - Windows 10 or 11 (64-bit)
+  - World of Warcraft Classic Era or Retail
+  - No account or API key: Parley translates offline on your PC.
+
+
+STEP 1 - INSTALL PARLEY
+-----------------------
+  1. Download Parley-Setup.exe from the Releases page.
+  2. Double-click it.
+     Windows may say "Windows protected your PC" because the file isn't
+     code-signed. Click "More info", then "Run anyway".
+  3. Click "Yes" to install. No administrator rights are needed.
+     Parley goes into:  %LOCALAPPDATA%\Programs\Parley
+  4. Choose whether Parley should start with Windows.
+  5. The last message shows where the WoW addon was installed.
+     Click "Yes" to start Parley.
+
+  Parley appears as a small speech-bubble icon in the system tray
+  (bottom-right, near the clock), plus an overlay window.
+
+
+STEP 2 - SET UP PARLEY
+----------------------
+  1. Click the gear icon in the Parley overlay.
+  2. Pick the language you want chat translated into.
+     "Translation engine" is already set to Offline; leave it.
+  3. Check that "WoW folder" points to your _classic_era_ or _retail_
+     folder, for example:
+        C:\Program Files (x86)\World of Warcraft\_classic_era_
+        D:\Games\WoW\World of Warcraft\_retail_
+     Click "Install addon" if you changed it. Parley installs the addon
+     into every WoW version it finds next to that folder.
+  4. Click Save.
+
+  The first time someone writes in a new language, Parley downloads that
+  language once (about 50 MB for both directions) and shows the progress
+  in the overlay. After that it works without internet.
+
+
+STEP 3 - SET UP WOW
+-------------------
+  1. In WoW open System > Graphics and set Display Mode to
+     "Windowed (Fullscreen)". Exclusive fullscreen hides the game from
+     screen capture.
+  2. Leave WoW's Gamma, Brightness and Contrast at their defaults.
+  3. On the character select screen, click "AddOns" and make sure
+     "Parley" is ticked.
+  4. Log in. Type /parley (or click the Parley minimap button) to open
+     the settings window and pick a preset, e.g. "Friends & group".
+  5. Type:   /parley test
+     Three sample messages (Spanish, Russian, Portuguese) should appear
+     translated in the Parley overlay. The status next to the Parley
+     title should say "Live".
+
+
+INSTALLING THE ADDON BY HAND (only if needed)
+---------------------------------------------
+Parley and its installer normally do this for you.
+  1. Find the "Parley" folder inside "addon" (in the Parley install
+     folder or the download).
+  2. COPY it (Ctrl+C, Ctrl+V) into:
+        <your WoW folder>\_classic_era_\Interface\AddOns\
+     so you end up with:
+        ...\Interface\AddOns\Parley\Parley.toc
+        ...\Interface\AddOns\Parley\Parley.lua
+     Tip: copy, don't drag. Dragging on the same drive MOVES the files.
+  3. Type /reload in WoW if it is running.
+
+
+OPTIONAL
+--------
+  - DeepL (best quality, needs an account): sign up for the DeepL API
+    at https://www.deepl.com/pro-api, copy your "Authentication Key for
+    DeepL API", then in Parley's Settings choose "DeepL" as the
+    translation engine and paste the key. If DeepL fails (no internet,
+    allowance used up), Parley falls back to offline automatically.
+  - Voice replies: click the microphone in the reply box, or press
+    Ctrl+Shift+Y. The first time, Parley downloads a speech model
+    (466 MB "Accurate" or 148 MB "Fast"; choose under tray icon >
+    Voice input). Windows must allow desktop apps to use the microphone:
+    Settings > Privacy & security > Microphone.
+  - WoW fonts for the WoW skins: if you have Friz Quadrata
+    (FRIZQT__.TTF), put it in a "fonts" folder next to Parley.exe.
+    Fonts are not included because they are licensed.
+
+
+UNINSTALL
+---------
+  Windows Settings > Apps > Installed apps > Parley > Uninstall.
+  Your settings (%APPDATA%\Parley) and the WoW addon are left in place;
+  delete them by hand if you want them gone.
+
+
+HELP
+----
+  See docs\USER_GUIDE.md or the project page for troubleshooting.

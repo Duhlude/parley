@@ -1,0 +1,13 @@
+## Interface: 11509, 120100
+## Title: Parley
+## Notes: Live chat translation. Requires the free Parley desktop app (Windows).
+## Author: Magichouse Media
+## Version: 1.4.0
+## X-License: MIT
+## IconTexture: Interface\AddOns\Parley\Media\icon
+## X-Category: Chat & Communication
+## SavedVariables: ParleyDB
+
+Locale.lua
+Parley.lua
+ParleyUI.lua

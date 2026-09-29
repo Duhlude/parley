@@ -1,0 +1,32 @@
+# build outputs
+*.exe
+!whisper-cli.exe
+!parley-mt.exe
+Parley-addon-*.zip
+installer/payload/
+
+# licensed fonts: never publish
+fonts/
+*.ttf
+*.otf
+
+# engine build work + local test downloads
+engine/.work/
+build-cache/
+
+# test output
+test/out/
+
+# speech models
+models/
+*.bin
+
+# editor / OS
+.vscode/
+Thumbs.db
+Desktop.ini
+Claude outputs/
+benchmark/
+
+# full-size original (the README uses in-game.jpg)
+assets/screenshots/ingamewithparley.png

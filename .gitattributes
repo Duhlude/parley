@@ -1,0 +1,9 @@
+# Windows batch files need CRLF
+*.bat text eol=crlf
+# binaries
+*.exe binary
+*.syso binary
+*.ico binary
+*.png binary
+*.tga binary
+*.zst binary

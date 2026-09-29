@@ -1,0 +1,180 @@
+--- a/src/translator/aligned.h
++++ b/src/translator/aligned.h
+@@ -1,6 +1,9 @@
+ #pragma once
+ #include <cstdlib>
+ #include <new>
++#if defined(_WIN32)
++#include <malloc.h>
++#endif
+ #ifdef _MSC_VER
+ // Ensure _HAS_EXCEPTIONS is defined
+ #include <vcruntime.h>
+@@ -22,7 +25,7 @@
+ 
+     explicit AlignedVector(std::size_t size, std::size_t alignment = 64 /* CPU cares about this */)
+       : size_(size) {
+-#ifdef _MSC_VER
++#ifdef _WIN32
+       mem_ = static_cast<T*>(_aligned_malloc(size * sizeof(T), alignment));
+       if (!mem_) {
+ #  if (defined(_MSC_VER) && !defined(__clang__)) ? (_HAS_EXCEPTIONS) : (__EXCEPTIONS)
+@@ -80,7 +83,7 @@
+     std::size_t size_;
+ 
+     void release() {
+-#ifdef _MSC_VER
++#ifdef _WIN32
+       _aligned_free(mem_);
+ #else
+       std::free(mem_);
+--- a/3rd_party/marian-dev/src/3rd_party/faiss/utils/misc.h
++++ b/3rd_party/marian-dev/src/3rd_party/faiss/utils/misc.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ #include <algorithm>
+ #include <vector>
++#include <cstdint>
+ 
+ namespace faiss {
+   /// The metric space for vector comparison for Faiss indices and algorithms.
+--- a/3rd_party/marian-dev/src/3rd_party/faiss/utils/hamming-inl.h
++++ b/3rd_party/marian-dev/src/3rd_party/faiss/utils/hamming-inl.h
+@@ -10,8 +10,8 @@
+ namespace faiss {
+ 
+ 
+-#ifdef _MSC_VER
+-#define bzero(p,n) (memset((p),0,(n)))
++#ifdef _WIN32
++#define bzero(p,n) (memset((p),0,(n)))
+ #endif
+ inline BitstringWriter::BitstringWriter(uint8_t *code, int code_size):
+     code (code), code_size (code_size), i(0)
+--- a/3rd_party/marian-dev/CMakeLists.txt
++++ b/3rd_party/marian-dev/CMakeLists.txt
+@@ -322,7 +322,7 @@
+   set(DISABLE_GLOBALLY "-Wno-unused-result ${CLANG_IGNORE_UNKNOWN_CUDA} ${CLANG_IGNORE_UNUSED_VALUES} ${CLANG_IGNORE_CONSTEXPR_CONVERSION} ${ARM_WARNINGS}") # This needs to appear here as well to appease clang11+ on linux
+ 
+   # These are used in src/CMakeLists.txt on a per-target basis
+-  list(APPEND ALL_WARNINGS -Wall; -Werror; -Wextra; -Wno-unused-result; -Wno-deprecated;
++  list(APPEND ALL_WARNINGS -Wall; -Wextra; -Wno-unused-result; -Wno-deprecated;
+     -Wno-pragmas; -Wno-unused-parameter; -Wno-unused-function;
+     -Wno-unused-value; -Wno-unknown-pragmas; -Wno-sign-compare;
+     -Wno-missing-field-initializers; -Wno-use-after-free; -Wno-restrict; ${CLANG_IGNORE_UNUSED_PRIVATE_FIELD})
+--- a/3rd_party/marian-dev/src/CMakeLists.txt
++++ b/3rd_party/marian-dev/src/CMakeLists.txt
+@@ -158,7 +158,7 @@
+ 
+ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-  COMMAND git log -1 --pretty=format:\#define\ GIT_REVISION\ \"\%h\ \%ai\" > ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
++  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
+   DEPENDS ${MARIAN_GIT_DIR}/logs/HEAD
+   VERBATIM
+ )
+--- a/3rd_party/marian-dev/src/3rd_party/ExceptionWithCallStack.cpp
++++ b/3rd_party/marian-dev/src/3rd_party/ExceptionWithCallStack.cpp
+@@ -6,7 +6,7 @@
+ //
+ 
+ //#define _CRT_SECURE_NO_WARNINGS // "secure" CRT not available on all platforms  --add this at the top of all CPP files that give "function or variable may be unsafe" warnings
+-#ifdef _WIN32
++#if defined(_MSC_VER)
+ #pragma comment(lib, "Dbghelp.lib")
+ #pragma warning(push)
+ #pragma warning(disable: 4091) // 'typedef ': ignored on left of '' when no variable is declared
+@@ -16,6 +16,7 @@
+ #include <Windows.h>
+ #include "DbgHelp.h"
+ #pragma warning(pop)
++#elif defined(_WIN32)
+ #else
+ #include <execinfo.h>
+ #include <cxxabi.h>
+@@ -144,7 +145,7 @@
+ {
+     write("\n[CALL STACK]\n");
+ 
+-#ifdef _WIN32
++#if defined(_MSC_VER)
+     static const int MAX_CALLERS = 62;
+     static const unsigned short MAX_CALL_STACK_DEPTH = 20;
+ 
+@@ -197,6 +198,8 @@
+ 
+     SymCleanup(process);
+ 
++#elif defined(_WIN32)
++    (void)skipLevels; (void)makeFunctionNamesStandOut;
+ #else // Linux
+ 
+     unsigned int MAX_NUM_FRAMES = 1024;
+--- a/3rd_party/marian-dev/src/3rd_party/intgemm/intgemm/aligned.h
++++ b/3rd_party/marian-dev/src/3rd_party/intgemm/intgemm/aligned.h
+@@ -2,6 +2,9 @@
+ #include <algorithm>
+ #include <cstdlib>
+ #include <new>
++#if defined(_WIN32)
++#include <malloc.h>
++#endif
+ #ifdef _MSC_VER
+ // Ensure _HAS_EXCEPTIONS is defined
+ #include <vcruntime.h>
+@@ -22,7 +25,7 @@
+ 
+     explicit AlignedVector(std::size_t size, std::size_t alignment = 64 /* CPU cares about this */)
+       : size_(size) {
+-#ifdef _MSC_VER
++#ifdef _WIN32
+       mem_ = static_cast<T*>(_aligned_malloc(size * sizeof(T), alignment));
+       if (!mem_) {
+ #  if (defined(_MSC_VER) && !defined(__clang__)) ? (_HAS_EXCEPTIONS) : (__EXCEPTIONS)
+@@ -88,7 +91,7 @@
+     std::size_t size_;
+ 
+     void release() {
+-#ifdef _MSC_VER
++#ifdef _WIN32
+       _aligned_free(mem_);
+ #else
+       std::free(mem_);
+--- a/app/CMakeLists.txt
++++ b/app/CMakeLists.txt
+@@ -1,2 +1,35 @@
+ add_executable(bergamot bergamot.cpp)
+ target_link_libraries(bergamot PRIVATE bergamot-translator)
++
++add_executable(parley-mt parley-mt.cpp)
++target_link_libraries(parley-mt PRIVATE bergamot-translator)
++set(CLD2_DIR ${CMAKE_SOURCE_DIR}/3rd_party/cld2)
++add_library(cld2 STATIC
++  ${CLD2_DIR}/internal/cld2_generated_cjk_compatible.cc
++  ${CLD2_DIR}/internal/cld2_generated_deltaocta0122.cc
++  ${CLD2_DIR}/internal/cld2_generated_distinctocta0122.cc
++  ${CLD2_DIR}/internal/cld2_generated_quad0122.cc
++  ${CLD2_DIR}/internal/cld_generated_cjk_delta_bi_32.cc
++  ${CLD2_DIR}/internal/cld_generated_cjk_uni_prop_80.cc
++  ${CLD2_DIR}/internal/cld_generated_score_quad_octa_0122.cc
++  ${CLD2_DIR}/internal/cldutil.cc
++  ${CLD2_DIR}/internal/cldutil_shared.cc
++  ${CLD2_DIR}/internal/compact_lang_det.cc
++  ${CLD2_DIR}/internal/compact_lang_det_hint_code.cc
++  ${CLD2_DIR}/internal/compact_lang_det_impl.cc
++  ${CLD2_DIR}/internal/debug.cc
++  ${CLD2_DIR}/internal/fixunicodevalue.cc
++  ${CLD2_DIR}/internal/generated_distinct_bi_0.cc
++  ${CLD2_DIR}/internal/generated_entities.cc
++  ${CLD2_DIR}/internal/generated_language.cc
++  ${CLD2_DIR}/internal/generated_ulscript.cc
++  ${CLD2_DIR}/internal/getonescriptspan.cc
++  ${CLD2_DIR}/internal/lang_script.cc
++  ${CLD2_DIR}/internal/offsetmap.cc
++  ${CLD2_DIR}/internal/scoreonescriptspan.cc
++  ${CLD2_DIR}/internal/tote.cc
++  ${CLD2_DIR}/internal/utf8statetable.cc
++)
++target_include_directories(cld2 PUBLIC ${CLD2_DIR} ${CLD2_DIR}/internal)
++target_compile_options(cld2 PRIVATE -w -Wno-narrowing)
++target_link_libraries(parley-mt PRIVATE cld2)

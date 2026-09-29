@@ -1,0 +1,530 @@
+[
+ {
+  "id": "pt-1",
+  "lang": "pt",
+  "from": "",
+  "to": "EN-US",
+  "text": "alguem pra DM? precisa de tank",
+  "ref": "Anyone for DM? We need a tank"
+ },
+ {
+  "id": "pt-2",
+  "lang": "pt",
+  "from": "",
+  "to": "EN-US",
+  "text": "vlw pela ajuda mano, tmj",
+  "ref": "Thanks for the help bro, I've got your back"
+ },
+ {
+  "id": "pt-3",
+  "lang": "pt",
+  "from": "",
+  "to": "EN-US",
+  "text": "quanto ta o linen cloth no ah?",
+  "ref": "How much is linen cloth going for on the AH?"
+ },
+ {
+  "id": "pt-4",
+  "lang": "pt",
+  "from": "",
+  "to": "EN-US",
+  "text": "vou deslogar, amanhã a gente continua a quest",
+  "ref": "I'm logging off, we'll continue the quest tomorrow"
+ },
+ {
+  "id": "pt-5",
+  "lang": "pt",
+  "from": "",
+  "to": "EN-US",
+  "text": "não puxa ainda, o healer tá sem mana",
+  "ref": "Don't pull yet, the healer is out of mana"
+ },
+ {
+  "id": "pt-6",
+  "lang": "pt",
+  "from": "",
+  "to": "EN-US",
+  "text": "alguém sabe onde fica o treinador de mago em Ventobravo?",
+  "ref": "Does anyone know where the mage trainer is in Stormwind?"
+ },
+ {
+  "id": "es-1",
+  "lang": "es",
+  "from": "",
+  "to": "EN-US",
+  "text": "busco grupo para Profundidades de Roca Negra, soy sanador",
+  "ref": "Looking for a group for Blackrock Depths, I'm a healer"
+ },
+ {
+  "id": "es-2",
+  "lang": "es",
+  "from": "",
+  "to": "EN-US",
+  "text": "alguien me puede abrir un portal a Forjaz? pago",
+  "ref": "Can someone open a portal to Ironforge for me? I'll pay"
+ },
+ {
+  "id": "es-3",
+  "lang": "es",
+  "from": "",
+  "to": "EN-US",
+  "text": "gracias por la invitación, ya voy",
+  "ref": "Thanks for the invite, on my way"
+ },
+ {
+  "id": "es-4",
+  "lang": "es",
+  "from": "",
+  "to": "EN-US",
+  "text": "cuidado con los patrulleros, vienen por la izquierda",
+  "ref": "Watch out for the patrols, they're coming from the left"
+ },
+ {
+  "id": "es-5",
+  "lang": "es",
+  "from": "",
+  "to": "EN-US",
+  "text": "q tal? alguien de España por aquí?",
+  "ref": "What's up? Anyone from Spain around here?"
+ },
+ {
+  "id": "es-6",
+  "lang": "es",
+  "from": "",
+  "to": "EN-US",
+  "text": "vendo cuero pesado, 5 de plata cada uno",
+  "ref": "Selling heavy leather, 5 silver each"
+ },
+ {
+  "id": "ru-1",
+  "lang": "ru",
+  "from": "",
+  "to": "EN-US",
+  "text": "ищу группу в Мертвые копи, нужен танк",
+  "ref": "Looking for a group for Deadmines, need a tank"
+ },
+ {
+  "id": "ru-2",
+  "lang": "ru",
+  "from": "",
+  "to": "EN-US",
+  "text": "кто-нибудь знает где взять этот квест?",
+  "ref": "Does anyone know where to get this quest?"
+ },
+ {
+  "id": "ru-3",
+  "lang": "ru",
+  "from": "",
+  "to": "EN-US",
+  "text": "спасибо за бафф, удачи",
+  "ref": "Thanks for the buff, good luck"
+ },
+ {
+  "id": "ru-4",
+  "lang": "ru",
+  "from": "",
+  "to": "EN-US",
+  "text": "не агрите патруль, ждём хила",
+  "ref": "Don't aggro the patrol, we're waiting for the healer"
+ },
+ {
+  "id": "ru-5",
+  "lang": "ru",
+  "from": "",
+  "to": "EN-US",
+  "text": "продам тканевые сумки недорого, пишите в лс",
+  "ref": "Selling cloth bags cheap, message me privately"
+ },
+ {
+  "id": "ru-6",
+  "lang": "ru",
+  "from": "",
+  "to": "EN-US",
+  "text": "я из Москвы, по-английски плохо говорю",
+  "ref": "I'm from Moscow, I don't speak English well"
+ },
+ {
+  "id": "de-1",
+  "lang": "de",
+  "from": "",
+  "to": "EN-US",
+  "text": "Suche Gruppe für Uldaman, bin Heiler",
+  "ref": "Looking for a group for Uldaman, I'm a healer"
+ },
+ {
+  "id": "de-2",
+  "lang": "de",
+  "from": "",
+  "to": "EN-US",
+  "text": "Kann mir jemand beim Elite-Mob helfen?",
+  "ref": "Can someone help me with the elite mob?"
+ },
+ {
+  "id": "de-3",
+  "lang": "de",
+  "from": "",
+  "to": "EN-US",
+  "text": "danke fürs Heilen, war knapp",
+  "ref": "Thanks for the heals, that was close"
+ },
+ {
+  "id": "de-4",
+  "lang": "de",
+  "from": "",
+  "to": "EN-US",
+  "text": "wo finde ich den Lehrer für Bergbau?",
+  "ref": "Where do I find the mining trainer?"
+ },
+ {
+  "id": "de-5",
+  "lang": "de",
+  "from": "",
+  "to": "EN-US",
+  "text": "wir warten noch auf den Tank, dann geht's los",
+  "ref": "We're still waiting for the tank, then we start"
+ },
+ {
+  "id": "de-6",
+  "lang": "de",
+  "from": "",
+  "to": "EN-US",
+  "text": "verkaufe Eisenerz, 20 Silber pro Stack",
+  "ref": "Selling iron ore, 20 silver per stack"
+ },
+ {
+  "id": "fr-1",
+  "lang": "fr",
+  "from": "",
+  "to": "EN-US",
+  "text": "cherche groupe pour les Mortemines, il manque un soigneur",
+  "ref": "Looking for a group for the Deadmines, we're missing a healer"
+ },
+ {
+  "id": "fr-2",
+  "lang": "fr",
+  "from": "",
+  "to": "EN-US",
+  "text": "quelqu'un peut m'aider pour cette quête ?",
+  "ref": "Can someone help me with this quest?"
+ },
+ {
+  "id": "fr-3",
+  "lang": "fr",
+  "from": "",
+  "to": "EN-US",
+  "text": "merci pour le groupe, bonne soirée à tous",
+  "ref": "Thanks for the group, have a good evening everyone"
+ },
+ {
+  "id": "fr-4",
+  "lang": "fr",
+  "from": "",
+  "to": "EN-US",
+  "text": "attention, il y a des patrouilles derrière",
+  "ref": "Careful, there are patrols behind"
+ },
+ {
+  "id": "fr-5",
+  "lang": "fr",
+  "from": "",
+  "to": "EN-US",
+  "text": "je dois partir dans 10 minutes",
+  "ref": "I have to leave in 10 minutes"
+ },
+ {
+  "id": "fr-6",
+  "lang": "fr",
+  "from": "",
+  "to": "EN-US",
+  "text": "vends sacs en tissu, 30 pa pièce",
+  "ref": "Selling cloth bags, 30 silver each"
+ },
+ {
+  "id": "ja-1",
+  "lang": "ja",
+  "from": "",
+  "to": "EN-US",
+  "text": "タンク募集中です、デッドマインズ行きます",
+  "ref": "Looking for a tank, we're going to Deadmines"
+ },
+ {
+  "id": "ja-2",
+  "lang": "ja",
+  "from": "",
+  "to": "EN-US",
+  "text": "ありがとうございます！助かりました",
+  "ref": "Thank you! That really helped"
+ },
+ {
+  "id": "ja-3",
+  "lang": "ja",
+  "from": "",
+  "to": "EN-US",
+  "text": "すみません、英語があまり話せません",
+  "ref": "Sorry, I can't speak English very well"
+ },
+ {
+  "id": "ja-4",
+  "lang": "ja",
+  "from": "",
+  "to": "EN-US",
+  "text": "このクエストはどこで受けられますか？",
+  "ref": "Where can I get this quest?"
+ },
+ {
+  "id": "ja-5",
+  "lang": "ja",
+  "from": "",
+  "to": "EN-US",
+  "text": "ちょっと待ってください、マナを回復します",
+  "ref": "Please wait a moment, I'm restoring my mana"
+ },
+ {
+  "id": "ja-6",
+  "lang": "ja",
+  "from": "",
+  "to": "EN-US",
+  "text": "おやすみなさい、また明日",
+  "ref": "Good night, see you tomorrow"
+ },
+ {
+  "id": "zh-1",
+  "lang": "zh",
+  "from": "",
+  "to": "EN-US",
+  "text": "有人去死亡矿井吗？需要坦克和治疗",
+  "ref": "Anyone going to Deadmines? Need a tank and a healer"
+ },
+ {
+  "id": "zh-2",
+  "lang": "zh",
+  "from": "",
+  "to": "EN-US",
+  "text": "谢谢大佬带我",
+  "ref": "Thanks for carrying me, boss"
+ },
+ {
+  "id": "zh-3",
+  "lang": "zh",
+  "from": "",
+  "to": "EN-US",
+  "text": "等一下，我去修装备",
+  "ref": "Wait a moment, I'm going to repair my gear"
+ },
+ {
+  "id": "zh-4",
+  "lang": "zh",
+  "from": "",
+  "to": "EN-US",
+  "text": "这个任务在哪里交？",
+  "ref": "Where do I turn in this quest?"
+ },
+ {
+  "id": "zh-5",
+  "lang": "zh",
+  "from": "",
+  "to": "EN-US",
+  "text": "出售亚麻布，每组十银",
+  "ref": "Selling linen cloth, 10 silver per stack"
+ },
+ {
+  "id": "zh-6",
+  "lang": "zh",
+  "from": "",
+  "to": "EN-US",
+  "text": "我英语不好，请多包涵",
+  "ref": "My English isn't good, please bear with me"
+ },
+ {
+  "id": "ko-1",
+  "lang": "ko",
+  "from": "",
+  "to": "EN-US",
+  "text": "탱커 구합니다 데드마인 가실 분",
+  "ref": "Looking for a tank, anyone going to Deadmines?"
+ },
+ {
+  "id": "ko-2",
+  "lang": "ko",
+  "from": "",
+  "to": "EN-US",
+  "text": "감사합니다 덕분에 살았어요",
+  "ref": "Thank you, you saved me"
+ },
+ {
+  "id": "ko-3",
+  "lang": "ko",
+  "from": "",
+  "to": "EN-US",
+  "text": "잠시만요 물 좀 마실게요",
+  "ref": "One moment, I'm going to drink"
+ },
+ {
+  "id": "ko-4",
+  "lang": "ko",
+  "from": "",
+  "to": "EN-US",
+  "text": "이 퀘스트 어디서 받나요?",
+  "ref": "Where do I get this quest?"
+ },
+ {
+  "id": "ko-5",
+  "lang": "ko",
+  "from": "",
+  "to": "EN-US",
+  "text": "죄송해요 영어를 잘 못해요",
+  "ref": "Sorry, I'm not good at English"
+ },
+ {
+  "id": "ko-6",
+  "lang": "ko",
+  "from": "",
+  "to": "EN-US",
+  "text": "다음 파티도 같이 해요",
+  "ref": "Let's group up again next time"
+ },
+ {
+  "id": "en-pt-br-1",
+  "lang": "pt-br",
+  "from": "EN",
+  "to": "PT-BR",
+  "text": "Sure, I can tank. Send me an invite.",
+  "ref": "Claro, eu posso tankar. Me manda um convite.",
+  "reply": true
+ },
+ {
+  "id": "en-pt-br-2",
+  "lang": "pt-br",
+  "from": "EN",
+  "to": "PT-BR",
+  "text": "Sorry, I have to go in five minutes.",
+  "ref": "Desculpa, tenho que sair em cinco minutos.",
+  "reply": true
+ },
+ {
+  "id": "en-pt-br-3",
+  "lang": "pt-br",
+  "from": "EN",
+  "to": "PT-BR",
+  "text": "Where is the flight master in this town?",
+  "ref": "Onde fica o mestre de voo nesta cidade?",
+  "reply": true
+ },
+ {
+  "id": "en-pt-br-4",
+  "lang": "pt-br",
+  "from": "EN",
+  "to": "PT-BR",
+  "text": "Thanks for the group, see you tomorrow!",
+  "ref": "Obrigado pelo grupo, até amanhã!",
+  "reply": true
+ },
+ {
+  "id": "en-es-1",
+  "lang": "es",
+  "from": "EN",
+  "to": "ES",
+  "text": "Sure, I can tank. Send me an invite.",
+  "ref": "Claro, puedo tanquear. Mándame una invitación.",
+  "reply": true
+ },
+ {
+  "id": "en-es-2",
+  "lang": "es",
+  "from": "EN",
+  "to": "ES",
+  "text": "Sorry, I have to go in five minutes.",
+  "ref": "Lo siento, me tengo que ir en cinco minutos.",
+  "reply": true
+ },
+ {
+  "id": "en-es-3",
+  "lang": "es",
+  "from": "EN",
+  "to": "ES",
+  "text": "Where is the flight master in this town?",
+  "ref": "¿Dónde está el maestro de vuelo en este pueblo?",
+  "reply": true
+ },
+ {
+  "id": "en-es-4",
+  "lang": "es",
+  "from": "EN",
+  "to": "ES",
+  "text": "Thanks for the group, see you tomorrow!",
+  "ref": "¡Gracias por el grupo, hasta mañana!",
+  "reply": true
+ },
+ {
+  "id": "en-ru-1",
+  "lang": "ru",
+  "from": "EN",
+  "to": "RU",
+  "text": "Sure, I can tank. Send me an invite.",
+  "ref": "Конечно, могу танковать. Кинь мне приглашение.",
+  "reply": true
+ },
+ {
+  "id": "en-ru-2",
+  "lang": "ru",
+  "from": "EN",
+  "to": "RU",
+  "text": "Sorry, I have to go in five minutes.",
+  "ref": "Извини, мне нужно уйти через пять минут.",
+  "reply": true
+ },
+ {
+  "id": "en-ru-3",
+  "lang": "ru",
+  "from": "EN",
+  "to": "RU",
+  "text": "Where is the flight master in this town?",
+  "ref": "Где в этом городе распорядитель полётов?",
+  "reply": true
+ },
+ {
+  "id": "en-ru-4",
+  "lang": "ru",
+  "from": "EN",
+  "to": "RU",
+  "text": "Thanks for the group, see you tomorrow!",
+  "ref": "Спасибо за группу, до завтра!",
+  "reply": true
+ },
+ {
+  "id": "en-de-1",
+  "lang": "de",
+  "from": "EN",
+  "to": "DE",
+  "text": "Sure, I can tank. Send me an invite.",
+  "ref": "Klar, ich kann tanken. Schick mir eine Einladung.",
+  "reply": true
+ },
+ {
+  "id": "en-de-2",
+  "lang": "de",
+  "from": "EN",
+  "to": "DE",
+  "text": "Sorry, I have to go in five minutes.",
+  "ref": "Sorry, ich muss in fünf Minuten los.",
+  "reply": true
+ },
+ {
+  "id": "en-de-3",
+  "lang": "de",
+  "from": "EN",
+  "to": "DE",
+  "text": "Where is the flight master in this town?",
+  "ref": "Wo ist der Flugmeister in dieser Stadt?",
+  "reply": true
+ },
+ {
+  "id": "en-de-4",
+  "lang": "de",
+  "from": "EN",
+  "to": "DE",
+  "text": "Thanks for the group, see you tomorrow!",
+  "ref": "Danke für die Gruppe, bis morgen!",
+  "reply": true
+ }
+]

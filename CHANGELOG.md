@@ -1,0 +1,83 @@
+# Changelog
+
+## App 1.5.0 · Addon 1.4.0 (2026-09-29)
+
+### Added
+- **Retail support (beta).** The addon loads on Retail (12.1) as well as Classic Era, and Parley installs it into both game folders when it finds them. During Mythic+ keys, PvP matches and boss fights Retail hides chat from addons; Parley shows a short note and picks up again afterwards.
+- **Offline translation, no account needed.** Parley now translates on your PC with Mozilla's Firefox Translations models (bergamot engine, `parley-mt.exe`). It's the default engine: nothing to sign up for, no character limits, and chat text never leaves your computer.
+- 30+ languages to and from English; other pairs (e.g. Russian → Portuguese) are translated through English.
+- Each language downloads once (about 25–45 MB per direction) the first time it's needed, with progress in the overlay. Files are checked against Mozilla's published SHA-256 hashes.
+- On-device language detection (CLD2).
+- Settings → **Translation engine**: Offline or DeepL. DeepL is now optional; if it's unreachable, rejects the key or runs out of characters, Parley falls back to offline for that message.
+
+- **Right-click a message**: copy the translation or original, reply to the sender, or **mute** them (tray → Unmute everyone to undo).
+- **Click-through overlay** (tray): clicks go through to WoW; Ctrl+Shift+T to use it, Esc to go back.
+- **Chat history**: translated chat and your replies are saved to a daily text file (tray → Chat history).
+- Tray → **Translation**: switch engine, **download a language ahead of time**, open the models folder (with its size).
+- Your own language is downloaded in the background when it isn't English.
+- DeepL usage shown in Settings, with a warning at 90%.
+- The offline engine frees its memory after 10 minutes without foreign chat.
+- **Logo and icons**: a new Parley logo (two speech bubbles in a gold-ringed badge) for the app, tray, installer, the WoW skins' portrait and the addon (minimap button and AddOns list). Banner art for GitHub and CurseForge is in `assets/logo`.
+- **Settings window fully skinned**: its own title bar and frame, dropdowns that open skinned menus, a skinned checkbox, and skinned message dialogs instead of Windows' white boxes.
+- **Parley speaks your language.** The app, installer and addon follow your Windows (and WoW client) language: German, Spanish, French, Italian, Portuguese (Brazil), Russian, Korean and Chinese (Simplified and Traditional), with English as the fallback. Change it under Settings → **Interface language**. On first start, "Translate chat into" is also set from your Windows language. Language names in menus are shown in their own language (Español, Русский, 日本語 …).
+- **Skinned menus**: the tray menu, the right-click message menu and the reply-language picker are now drawn in the current skin (WoW dropdown style for the WoW skins), with submenus, keyboard navigation and scrolling. The language picker is shorter: automatic, recent languages, then "All languages".
+
+### Addon 1.4.0
+- `/parley test all` sends samples in eight languages (Spanish, Russian, Portuguese, German, French, Japanese, Chinese, Korean); `/parley test ja` (or `es`, `zh`, `asia`, …) sends one.
+
+### Fixed
+- **Place names**: dungeons, raids, capitals and popular zones written in another client's language ("Мертвые копи", "Ventobravo", "死亡矿井", "데드마인") are shown with the name your client uses (Deadmines, Stormwind…), and your replies use theirs ("Deadmines" → "Minas Mortas" for a Brazilian). Works with both engines.
+- **"I can tank" / "I'll heal" in replies** become the gamer verb in their language (tankar, tanquear, танковать, tanken) instead of an untranslated or quoted "tank".
+- More chat slang understood: Russian (спс, лс, хил, агрить, инвайт, данж…) and Brazilian (vlw, valeu, bora, pras). "mana" is no longer read as Brazilian slang for "sister".
+- Short Russian lines that the language detector couldn't place are treated as Russian.
+- Offline translations no longer capitalize a word next to a WoW term ("healer For Deadmines", "raid Tomorrow").
+- A short exclamation is no longer doubled ("Sim! Sim! Tenho 5…").
+- Plain-ASCII Portuguese and Spanish trade chat ("Vendendo bolsas de seda, 40 prata cada") is no longer mistaken for English and skipped.
+
+### Changed
+- No more "add your DeepL key" warning on first start.
+- Docs: install steps without DeepL, a "Performance & what it reads" section, and resolution support.
+
+## App 1.4.0 (2026-09-29)
+
+### Added
+- Gaming slang dictionary built from BabelChat and WoW Translator (both MIT): 50 chat shortcuts and 155 WoW terms with explanations in up to 19 languages, including all Classic dungeon and raid abbreviations.
+- Your replies: shortcuts like *sry, w8, idk, ty, omw* are spelled out before translation, so the other player gets proper words.
+- Incoming chat: when you translate into a language other than English, English shortcuts in foreign messages are spelled out, and a **Terms:** line explains WoW jargon in your language (e.g. *SM Cath: Mosteiro (Catedral)*, *w2w: …*). Toggle under tray icon → **Explain gaming terms**.
+- Messages made only of gamer shorthand ("ty np gg wp") are recognised as English and skipped.
+
+## App 1.3.1 · Addon 1.2.0 (2026-09-29)
+
+### Added
+- In-game settings window: `/parley`, a minimap button, or Esc → Options → AddOns → Parley.
+- Six built-in presets (Everything, Friends & group, Group only, Social, Nearby & whispers, Friends only) and up to 8 saved presets of your own.
+- Chat-type checkboxes, a pause switch (also right-click on the minimap button), test messages and a strip toggle in the window.
+- `/parley preset <name>` applies any preset by name; `/parley status` shows the status in chat.
+
+### Changed
+- `/parley` on its own now opens the settings window instead of printing help.
+- The installer copies every addon file, now including `ParleyUI.lua`.
+
+## App 1.3.0 · Addon 1.1.1 (2026-09-29)
+
+First public release candidate.
+
+### Added
+- Voice replies with on-device speech recognition (whisper.cpp): no popup, no online speech service. Accurate (466 MB) and Fast (148 MB) models, auto-send after speaking, voice log.
+- Skins: Classic WoW, Retail WoW (windows), Dragonflight UI, WoW chat frame, Parley (modern). Retail has a title strip, an overlapping gold-ringed portrait, a status line, a red close box, framed message rows and a dropdown-style language picker. Dragonflight has a teardrop unit-frame portrait, a name plate, a green "health bar" status and bevelled slot rows. Optional Friz Quadrata support.
+- `Parley-Setup.exe` per-user installer: shortcuts, optional start with Windows, uninstaller, automatic WoW addon install, and in-place updates that close a running Parley.
+- Automatic detection of the WoW Classic Era folder (Battle.net registry entry and common locations on any drive).
+- Addon: `/parley preset`, `/parley all`, `/parley friendsonly` (whispers only from friends).
+- Documentation: install guide, user guide, how it works, privacy, third-party notices.
+
+### Changed
+- Replies: you choose the recipient by clicking a message, and the reply language is set separately, following the recipient's language automatically.
+- Translation: WoW jargon and item links stay in English, casual tone, a game-chat context hint for DeepL, and Brazilian Portuguese shorthand expansion.
+- English slang in plain Latin letters is no longer mis-detected as another language.
+
+### Fixed
+- Names and messages in other alphabets now always render with a font that supports them.
+
+## App 1.0.0 · Addon 1.0.0 (2026-09-28)
+
+- First working version: pixel-strip bridge, DeepL translation, overlay, replies via clipboard.
