@@ -39,6 +39,28 @@ The **Reply in …** button sets the reply language. It follows the language of 
 
 WoW chat lines are limited to 255 characters; Parley warns you if a translation is longer.
 
+### Quick replies
+
+The speech-bubble button next to the microphone opens ready-made replies: *Invite me, please*, *On my way!*, *One moment, please*, *Thanks for the group!*, *Thank you!*, *Sure, no problem*, *No, thank you*, *Sorry, I don't speak your language well*, *Where are you?* and *Good luck, have fun!*. They're already translated into Portuguese, Spanish, Russian, German, French, Italian, Korean, Chinese and Japanese, so they're copied instantly (other languages go through the translation engine). The menu shows each translation next to the phrase.
+
+## Alerts
+
+Messages that mention **your character** or one of your **alert words** get an orange bar and a soft Windows notification sound. Set the words under Settings → **Alert me when a message mentions**, separated by commas (e.g. `Deadmines, healer, WTB`). Your character's name is added automatically once the addon has told the app who you're playing. Turn the sound off under tray icon → **Alert sound**.
+
+## Auto-hide
+
+Tray icon → **Auto-hide overlay** → pick a delay (10 seconds to 2 minutes). When no new foreign chat has arrived for that long, the overlay fades out and gets out of the way completely: it doesn't block your screen or catch clicks. It fades back in when:
+
+- a new foreign-language message arrives (or an alert / notice appears),
+- you press **Ctrl+Shift+T**, or
+- you click the tray icon.
+
+It never hides while your mouse is over it, while you're typing a reply, or while one of its menus or the settings window is open. Choose **Off** to keep it visible all the time (the default).
+
+## Updates
+
+About once a day Parley checks GitHub for a newer version. When there is one, the overlay says so and the tray menu gets a **Download Parley x.y.z** item that opens the release page. Turn it off under tray icon → **Check for updates**.
+
 ## Voice replies
 
 Click the **microphone**, or press **Ctrl+Shift+Y** from anywhere, and speak. Recording stops about a second after you stop talking (or when you click the mic again). By default the reply is then translated and copied automatically, so you only press Enter, Ctrl+V, Enter in WoW.
@@ -56,6 +78,7 @@ Choose under Settings → **Translation engine**.
   - Supported: Spanish, Portuguese, French, German, Italian, Dutch, Polish, Russian, Ukrainian, Swedish, Danish, Norwegian, Finnish, Czech, Slovak, Slovenian, Croatian, Serbian, Bulgarian, Romanian, Hungarian, Greek, Turkish, Arabic, Hebrew, Persian, Chinese (Simplified and Traditional), Japanese, Korean, Vietnamese, Indonesian, Hindi and more, to and from English.
   - Two non-English languages (say Russian → Portuguese) are translated through English in two steps.
   - Quality is good for full sentences; heavy slang can come out rougher than DeepL. Parley expands common shorthand first to help.
+- **Azure Translator** (Microsoft): 2 million characters a month free, then pay-as-you-go. Create a free Translator resource in the Azure portal ([how](https://learn.microsoft.com/azure/ai-services/translator/create-translator-resource)), then paste its key and region (for example `westeurope`; use `global` if your resource is global) in Settings. Stronger than offline for Chinese, Japanese and Korean. If Azure fails, Parley translates that message offline instead.
 - **DeepL**: the best quality, but you need a DeepL API account and key. If DeepL is unreachable, rejects the key or runs out of characters, Parley translates that message offline instead. Settings shows how many DeepL characters you've used, and Parley warns you at 90%.
 
 You can also switch engines from the tray icon → **Translation**. The same menu has **Download a language now**, which fetches a language ahead of time so the first message isn't delayed, and a link to the models folder with its size. If you read chat in a language other than English, Parley downloads that language automatically.
@@ -130,13 +153,14 @@ WoW's fonts aren't included because they're licensed. If you have Friz Quadrata 
 
 | Setting | |
 |---|---|
-| Translation engine | Offline (default) or DeepL, see above |
-| DeepL API key | Optional; only used by the DeepL engine. Stored encrypted with your Windows account (DPAPI) |
+| Translation engine | Offline (default), DeepL or Azure, see above |
+| DeepL API key / Azure key and region | Optional; the row shows the key for the engine you picked. Stored encrypted with your Windows account (DPAPI) |
 | Translate chat into | Your language (set from your Windows language on first start) |
 | Interface language | Language of Parley's own menus and windows. *Automatic* follows Windows; English, Deutsch, Español, Français, Italiano, Português, Русский, 한국어, 简体中文 and 繁體中文 are available. The addon follows your WoW client's language |
 | Skin | See above |
 | WoW folder | Your `_classic_era_` or `_retail_` folder, detected automatically. **Install addon** copies the addon into it and into the other one if you have both |
 | Text size / Overlay opacity | Appearance |
+| Alert me when a message mentions | Words that get a message highlighted (and a sound), comma-separated. Your character is included automatically |
 | Show the original text | Shows the untranslated message under each translation |
 
 Settings live in `%APPDATA%\Parley\settings.json`.

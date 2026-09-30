@@ -29,10 +29,12 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           addon=$(grep -m1 '^## Version:' addon/Parley/Parley.toc | awk '{print $3}' | tr -d '\r')
           echo "addon=$addon" >> "$GITHUB_OUTPUT"
-          if ! grep -q "const version = \"$ver\"" installer/main_windows.go; then
-            echo "::error::installer/main_windows.go says a different version than the tag $tag. Bump it first."
-            exit 1
-          fi
+          for f in installer/main_windows.go version.go; do
+            if ! grep -q "ersion = \"$ver\"" "$f"; then
+              echo "::error::$f says a different version than the tag $tag. Bump it first."
+              exit 1
+            fi
+          done
 
       - name: Test
         run: |

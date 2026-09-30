@@ -45,6 +45,7 @@ var (
 	btnHide       RECT
 	chipRect      RECT
 	micRect       RECT
+	qrRect        RECT // quick replies
 	toClearRect   RECT
 	hoverBtn      int
 	trackingMouse bool
@@ -88,10 +89,15 @@ func createOverlay() {
 	updateDPI()
 	showOverlay(true, false)
 	pSetTimer.Call(h, 1, 1000, 0) // repaint for notice expiry / relative times
+	pSetTimer.Call(h, tipTimerID, 100, 0)
 }
 
 func applyOpacity() {
-	a := app.cfg.Opacity * 255 / 100
+	if autoHide.hidden {
+		return // stays faded out; fadeIn uses the new opacity
+	}
+	a := opacityAlpha()
+	autoHide.alpha, autoHide.goal = a, a
 	pSetLayeredWindowAttributes.Call(app.overlay, 0, uintptr(a), LWA_ALPHA)
 }
 
@@ -129,7 +135,7 @@ func layoutOverlay() {
 	x := pad + chipW + sc(8) + sc(8)
 	editH := sc(app.cfg.FontSize + 8)
 	y := r.Bottom - barH + (barH-editH)/2
-	pMoveWindow.Call(overlayEdit, uintptr(x), uintptr(y), uintptr(r.Right-pad-sc(8)-micWidth()-x), uintptr(editH), 1)
+	pMoveWindow.Call(overlayEdit, uintptr(x), uintptr(y), uintptr(r.Right-pad-sc(8)-2*micWidth()-x), uintptr(editH), 1)
 }
 
 func chipWidth() int32 { return sc(136) }
@@ -142,6 +148,7 @@ func showOverlay(v, focus bool) {
 		pShowWindow.Call(app.overlay, SW_HIDE)
 		return
 	}
+	fadeIn()
 	pShowWindow.Call(app.overlay, SW_SHOWNOACTIVATE)
 	pSetWindowPos.Call(app.overlay, ^uintptr(0) /*HWND_TOPMOST*/, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE)
 	if focus {
@@ -168,6 +175,7 @@ func focusWow() {
 func editProc(h, msg, wp, lp uintptr) uintptr {
 	switch msg {
 	case WM_KEYDOWN:
+		app.touch()
 		switch wp {
 		case VK_RETURN:
 			app.sendReply(getText(h))
@@ -262,7 +270,7 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		pGetCursorPos.Call(uintptr(unsafe.Pointer(&pt)))
 		pScreenToClient.Call(h, uintptr(unsafe.Pointer(&pt)))
 		if loword(lp) == HTCLIENT && (inRect(btnSettings, pt.X, pt.Y) || inRect(btnClear, pt.X, pt.Y) ||
-			inRect(btnHide, pt.X, pt.Y) || inRect(chipRect, pt.X, pt.Y) || inRect(micRect, pt.X, pt.Y) || inRect(toClearRect, pt.X, pt.Y) || entryAt(pt.X, pt.Y) != nil) {
+			inRect(btnHide, pt.X, pt.Y) || inRect(chipRect, pt.X, pt.Y) || inRect(micRect, pt.X, pt.Y) || inRect(qrRect, pt.X, pt.Y) || inRect(toClearRect, pt.X, pt.Y) || entryAt(pt.X, pt.Y) != nil) {
 			c, _, _ := pLoadCursorW.Call(0, IDC_HAND)
 			pSetCursorProc(c)
 			return 1
@@ -283,6 +291,8 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 			hb = 5
 		case inRect(toClearRect, x, y):
 			hb = 6
+		case inRect(qrRect, x, y):
+			hb = 7
 		}
 		if hb != hoverBtn {
 			hoverBtn = hb
@@ -303,6 +313,7 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		}
 		return 0
 	case WM_LBUTTONUP:
+		overlayTip.reset()
 		x, y := loword(lp), hiword(lp)
 		switch {
 		case inRect(btnSettings, x, y):
@@ -320,6 +331,9 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 			invalidate(h)
 		case inRect(micRect, x, y):
 			startVoice()
+		case inRect(qrRect, x, y):
+			quickReplyMenu()
+			invalidate(h)
 		default:
 			if e := entryAt(x, y); e != nil && !e.Own {
 				app.pickReply(e)
@@ -364,6 +378,17 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		// Click-through overlays take the mouse only while they're in use.
 		setClickThrough(loword(wp) == 0 && app.cfg.ClickThrough)
 	case WM_TIMER:
+		if wp == tipTimerID {
+			pollOverlayTip()
+			return 0
+		}
+		if wp == autoHideTimerID {
+			fadeStep()
+			return 0
+		}
+		if wp == 1 {
+			autoHideTick()
+		}
 		if wp == voiceTimerID {
 			pKillTimer.Call(h, voiceTimerID)
 			sendWinH()
@@ -380,6 +405,10 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 	case msgRefresh:
 		invalidate(h)
 		return 0
+	case msgWake:
+		fadeIn()
+		invalidate(h)
+		return 0
 	case msgReply:
 		app.finishReply()
 		invalidate(h)
@@ -387,7 +416,11 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 	case msgTray:
 		switch loword(lp) {
 		case WM_LBUTTONUP:
-			showOverlay(!app.visible, false)
+			if autoHide.hidden {
+				fadeIn()
+			} else {
+				showOverlay(!app.visible, false)
+			}
 		case WM_RBUTTONUP:
 			trayMenu()
 		}
@@ -469,7 +502,13 @@ func paintOverlay(h uintptr) {
 		}
 	}
 	showOrig := app.cfg.ShowOriginal
-	hasKey := app.key != "" || app.engineModeLocked() == "offline"
+	mode := app.engineModeLocked()
+	noKey := ""
+	if mode == "deepl" && app.key == "" {
+		noKey = T("No DeepL key · open Settings")
+	} else if mode == "azure" && app.azKey == "" {
+		noKey = T("No Azure key · open Settings")
+	}
 	app.mu.Unlock()
 
 	fillRect(mem, r, colBg)
@@ -484,8 +523,8 @@ func paintOverlay(h uintptr) {
 	case statusWarn:
 		dot = colWarn
 	}
-	if !hasKey && kind != statusWarn {
-		status, dot = T("No DeepL key · open Settings"), colWarn
+	if noKey != "" && kind != statusWarn {
+		status, dot = noKey, colWarn
 	}
 	drawHeaderBg(mem, w, headH)
 	pad := sc(10)
@@ -577,6 +616,15 @@ func paintOverlay(h uintptr) {
 	}
 	mr := micRect
 	drawText(mem, "\uE720", &mr, DT_SINGLELINE|DT_VCENTER|DT_CENTER)
+	qrRect = RECT{micRect.Left - micWidth(), micRect.Top, micRect.Left, micRect.Bottom}
+	if hoverBtn == 7 {
+		roundRect(mem, qrRect, sc(6), colSelect)
+		pSetTextColor.Call(mem, colAccent)
+	} else {
+		pSetTextColor.Call(mem, colDim)
+	}
+	qr := qrRect
+	drawText(mem, "\uE8BD", &qr, DT_SINGLELINE|DT_VCENTER|DT_CENTER)
 	chipRect = RECT{pad, barTop + sc(6), pad + chipWidth(), ht - sc(6)}
 	var chipText uintptr
 	if wowChrome() {
@@ -717,6 +765,9 @@ func paintOverlay(h uintptr) {
 				}
 			} else if wowChrome() {
 				drawRow(mem, rowR)
+			}
+			if e.Alert {
+				fillRect(mem, RECT{rowR.Left, rowR.Top + sc(2), rowR.Left + sc(3), rowR.Bottom - sc(2)}, colWarn)
 			}
 			pSelectObject.Call(mem, hf)
 			pSetTextColor.Call(mem, headCol)
@@ -873,7 +924,8 @@ func langMenu() {
 	app.mu.Unlock()
 	items := []MenuItem{
 		{Label: T("Reply language"), Title: true},
-		{Label: T("Match their language automatically"), ID: 1000, Checked: !manual, Radio: true},
+		{Label: T("Match their language automatically"), ID: 1000, Checked: !manual, Radio: true,
+			Tip: T("Your replies go out in the language of the person you're answering.")},
 	}
 	if len(recent) > 0 {
 		items = append(items, MenuItem{Sep: true}, MenuItem{Label: T("Recent"), Title: true})

@@ -42,7 +42,7 @@
 
 `.github/workflows/release.yml` builds and publishes releases on GitHub, so nothing needs uploading by hand:
 
-1. Bump `const version` in `installer/main_windows.go` (and the two `.rc` files), plus the addon's `## Version` if the addon changed. Update CHANGELOG.
+1. Bump `appVersion` in `version.go` and `const version` in `installer/main_windows.go` (and the two `.rc` files, then re-run windres), plus the addon's `## Version` if the addon changed. Update CHANGELOG.
 2. Write the release notes in `docs/release-notes/<version>.md` (e.g. `1.6.0.md`).
 3. Commit and push in GitHub Desktop.
 4. Tag that commit with the version (GitHub Desktop: History → right-click the commit → **Create Tag…** → `1.6.0`), then **Push origin** again so the tag goes up.

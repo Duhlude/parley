@@ -22,6 +22,8 @@ const (
 	idSkin
 	idEngine
 	idUILang
+	idRegion
+	idAlert
 )
 
 const msgUsage = WM_APP + 20
@@ -47,7 +49,13 @@ var (
 	setEngineSel, setLangSel, setSkinSel int
 	setUISel                             int // 0 = automatic, else uiLanguages[i-1]
 	setOrigOn                            bool
-	engineLabels                         = []string{"Offline: free, private, runs on this PC", "DeepL: best quality, needs an API key"}
+	engineLabels                         = []string{"Offline: free, private, runs on this PC", "DeepL: best quality, needs an API key", "Azure: 2 million free characters a month, needs a key"}
+	// The key row shows the DeepL or the Azure key depending on the engine;
+	// both are kept while the window is open.
+	setKeyDeepL, setKeyAzure, setRegion string
+	setKeyShows                         int // engine whose key the row shows (1 DeepL, 2 Azure)
+	keyLabel, keyField, regionField     = -1, -1, -1
+	setKeyRight                         int32
 )
 
 func isDropdown(id int) bool { return id == idEngine || id == idLang || id == idSkin || id == idUILang }
@@ -89,8 +97,13 @@ func openDropdown(id int) {
 	switch id {
 	case idEngine:
 		cur = setEngineSel
+		tips := []string{
+			T("Free and private: translates on your PC. Each language downloads once (about 50 MB)."),
+			T("The best quality. Needs a DeepL API key in Settings. Falls back to offline if DeepL fails."),
+			T("Very good quality, 2 million free characters a month. Needs an Azure key in Settings. Falls back to offline if Azure fails."),
+		}
 		for i, l := range engineLabels {
-			items = append(items, MenuItem{Label: T(l), ID: i + 1})
+			items = append(items, MenuItem{Label: T(l), ID: i + 1, Tip: tips[i]})
 		}
 	case idLang:
 		cur = setLangSel
@@ -124,6 +137,7 @@ func openDropdown(id int) {
 	switch id {
 	case idEngine:
 		setEngineSel = pick - 1
+		showKeyFor(setEngineSel)
 	case idLang:
 		setLangSel = pick - 1
 	case idUILang:
@@ -225,7 +239,7 @@ func openSettings() {
 		setBrushBg, _, _ = pCreateSolidBrush.Call(colBg)
 		setBrushField, _, _ = pCreateSolidBrush.Call(colField)
 	}
-	W, H := sc(480), sc(614)
+	W, H := sc(480), sc(670)
 	sw, _, _ := pGetSystemMetrics.Call(0)
 	shh, _, _ := pGetSystemMetrics.Call(1)
 	h, _, _ := pCreateWindowExW.Call(WS_EX_TOPMOST|WS_EX_CONTROLPARENT, uintptr(unsafe.Pointer(cls)),
@@ -240,10 +254,11 @@ func openSettings() {
 		pDwmSetWindowAttribute.Call(h, 33, uintptr(unsafe.Pointer(&pref)), 4)
 	}
 	buildSettings(h, inst)
+	pSetTimer.Call(h, tipTimerID, 100, 0)
 	pShowWindow.Call(h, SW_SHOW)
 	pSetForegroundWindow.Call(h)
 	pSetFocus.Call(setCtl[idKey])
-	if key := app.key; key != "" {
+	if key := app.key; key != "" && setKeyShows == 1 {
 		go func() {
 			used, limit, err := app.tr.Usage(key)
 			app.mu.Lock()
@@ -255,6 +270,58 @@ func openSettings() {
 			app.mu.Unlock()
 			pPostMessageW.Call(h, msgUsage, 0, 0)
 		}()
+	}
+}
+
+// showKeyFor switches the key row between DeepL (engines 0-1) and Azure (2).
+func showKeyFor(sel int) {
+	want := 1
+	if sel == 2 {
+		want = 2
+	}
+	if setKeyShows == want || keyField < 0 {
+		return
+	}
+	switch setKeyShows {
+	case 1:
+		setKeyDeepL = strings.TrimSpace(getText(setCtl[idKey]))
+	case 2:
+		setKeyAzure = strings.TrimSpace(getText(setCtl[idKey]))
+		setRegion = strings.TrimSpace(getText(setCtl[idRegion]))
+	}
+	setKeyShows = want
+	kr := setFields[keyField]
+	keyR, regR := RECT{kr.Left, kr.Top, setKeyRight, kr.Bottom}, RECT{}
+	if want == 2 {
+		regW := sc(120)
+		keyR.Right = setKeyRight - regW - sc(8)
+		regR = RECT{keyR.Right + sc(8), kr.Top, setKeyRight, kr.Bottom}
+	}
+	setFields[keyField], setFields[regionField] = keyR, regR
+	place := func(c uintptr, r RECT) {
+		inset, eh := sc(8), sc(18)
+		w := r.Right - r.Left - 2*inset
+		if w < 0 {
+			w = 0
+		}
+		pMoveWindow.Call(c, uintptr(r.Left+inset), uintptr(r.Top+(r.Bottom-r.Top-eh)/2), uintptr(w), uintptr(eh), 1)
+	}
+	place(setCtl[idKey], keyR)
+	place(setCtl[idRegion], regR)
+	if want == 2 {
+		setText(setCtl[idKey], setKeyAzure)
+		setText(setCtl[idRegion], setRegion)
+		pShowWindow.Call(setCtl[idRegion], 5)
+		setLabels[keyLabel].text = T("Azure Translator key and region")
+		setLabels[usageLabel].text = T("Find the region next to your key in the Azure portal.")
+	} else {
+		setText(setCtl[idKey], setKeyDeepL)
+		pShowWindow.Call(setCtl[idRegion], 0)
+		setLabels[keyLabel].text = T("DeepL API key (optional)")
+		setLabels[usageLabel].text = T("Only for DeepL. If DeepL fails, Parley falls back to offline.")
+	}
+	if settingsHwnd != 0 {
+		invalidateAll(settingsHwnd)
 	}
 }
 
@@ -292,21 +359,27 @@ func buildSettings(h, inst uintptr) {
 
 	c := app.cfg
 	label(T("Translation engine"), false)
-	setEngineSel = 0
-	if app.engineMode() == "deepl" {
-		setEngineSel = 1
-	}
+	setEngineSel = map[string]int{"offline": 0, "deepl": 1, "azure": 2}[app.engineMode()]
 	ctl(idEngine, "BUTTON", BS_OWNERDRAW, pad, fullW, "")
 	y += rowH + sc(12)
 
-	label(T("DeepL API key (optional)"), false)
+	setKeyDeepL, setKeyAzure, setRegion = app.key, app.azKey, c.AzureRegion
+	keyLabel = len(setLabels)
+	label("", false)
 	btnW := sc(120)
-	edit(idKey, ES_PASSWORD, pad, fullW-btnW-sc(8), app.key)
+	keyField = len(setFields)
+	setKeyRight = pad + fullW - btnW - sc(8)
+	edit(idKey, ES_PASSWORD, pad, fullW-btnW-sc(8), "")
+	regionField = len(setFields)
+	edit(idRegion, 0, pad, sc(10), "")
+	pSendMessageW.Call(setCtl[idRegion], 0x1501 /*EM_SETCUEBANNER*/, 1, uintptr(unsafe.Pointer(u16(T("region")))))
 	ctl(idGetKey, "BUTTON", BS_OWNERDRAW, pad+fullW-btnW, btnW, T("Get a key"))
 	y += rowH + sc(4)
 	usageLabel = len(setLabels)
-	label(T("Only for DeepL. If DeepL fails, Parley falls back to offline."), true)
+	label("", true)
 	y += sc(8)
+	setKeyShows = 0
+	showKeyFor(setEngineSel)
 
 	yRow := y
 	label(T("Translate chat into"), false)
@@ -352,6 +425,11 @@ func buildSettings(h, inst uintptr) {
 	edit(idOpacity, ES_NUMBER, pad+half+sc(16), half, strconv.Itoa(c.Opacity))
 	y += rowH + sc(12)
 
+	label(T("Alert me when a message mentions (your character is included)"), false)
+	edit(idAlert, 0, pad, fullW, c.AlertWords)
+	pSendMessageW.Call(setCtl[idAlert], 0x1501, 1, uintptr(unsafe.Pointer(u16(T("e.g. Deadmines, healer, WTB")))))
+	y += rowH + sc(12)
+
 	setOrigOn = c.ShowOriginal
 	ctl(idOrig, "BUTTON", BS_OWNERDRAW, pad, fullW, T("Show the original text under each translation"))
 	y += rowH + sc(10)
@@ -365,6 +443,11 @@ func buildSettings(h, inst uintptr) {
 
 func settingsProc(h, msg, wp, lp uintptr) uintptr {
 	switch msg {
+	case WM_TIMER:
+		if wp == tipTimerID {
+			pollSettingsTip()
+		}
+		return 0
 	case msgUsage:
 		app.mu.Lock()
 		txt := usageResult
@@ -398,7 +481,9 @@ func settingsProc(h, msg, wp, lp uintptr) uintptr {
 		}
 		drawMenuFrame(hdc, cr.Right, cr.Bottom)
 		for _, f := range setFields {
-			drawField(hdc, f)
+			if f.Right > f.Left {
+				drawField(hdc, f)
+			}
 		}
 		pSetBkMode.Call(hdc, TRANSPARENT)
 		pSelectObject.Call(hdc, setFont)
@@ -486,7 +571,11 @@ func settingsProc(h, msg, wp, lp uintptr) uintptr {
 			setOrigOn = !setOrigOn
 			invalidate(setCtl[idOrig])
 		case idGetKey:
-			openURL("https://www.deepl.com/pro-api")
+			if setKeyShows == 2 {
+				openURL("https://learn.microsoft.com/azure/ai-services/translator/create-translator-resource")
+			} else {
+				openURL("https://www.deepl.com/pro-api")
+			}
 		case idInstall:
 			path := strings.TrimSpace(getText(setCtl[idWow]))
 			if dests, err := installAddonAll(path); err != nil {
@@ -509,6 +598,7 @@ func settingsProc(h, msg, wp, lp uintptr) uintptr {
 		return 0
 	case WM_DESTROY:
 		settingsHwnd = 0
+		settingsTip.reset()
 		setCtl = map[int]uintptr{}
 		if setFont != 0 {
 			pDeleteObject.Call(setFont)
@@ -525,7 +615,15 @@ func settingsProc(h, msg, wp, lp uintptr) uintptr {
 }
 
 func saveSettings() {
-	key := strings.TrimSpace(getText(setCtl[idKey]))
+	switch setKeyShows { // pick up what's in the key row now
+	case 1:
+		setKeyDeepL = strings.TrimSpace(getText(setCtl[idKey]))
+	case 2:
+		setKeyAzure = strings.TrimSpace(getText(setCtl[idKey]))
+		setRegion = strings.TrimSpace(getText(setCtl[idRegion]))
+	}
+	key, azKey, region := setKeyDeepL, setKeyAzure, setRegion
+	alertWords := strings.TrimSpace(getText(setCtl[idAlert]))
 	sel := setLangSel
 	fontSize, _ := strconv.Atoi(getText(setCtl[idFont]))
 	opacity, _ := strconv.Atoi(getText(setCtl[idOpacity]))
@@ -537,6 +635,10 @@ func saveSettings() {
 	app.mu.Lock()
 	app.key = key
 	app.cfg.DeepLKeyEnc = protect([]byte(key))
+	app.azKey = azKey
+	app.cfg.AzureKeyEnc = protect([]byte(azKey))
+	app.cfg.AzureRegion = region
+	app.cfg.AlertWords = alertWords
 	if sel >= 0 && sel < len(targetLangs) {
 		app.cfg.MyLang = targetLangs[sel].Code
 	}
@@ -547,10 +649,7 @@ func saveSettings() {
 		app.cfg.Opacity = opacity
 	}
 	app.cfg.ShowOriginal = setOrigOn
-	app.cfg.Engine = "offline"
-	if engSel == 1 {
-		app.cfg.Engine = "deepl"
-	}
+	app.cfg.Engine = [...]string{"offline", "deepl", "azure"}[engSel]
 	engineMode := app.cfg.Engine
 	oldUI := app.cfg.UILang
 	app.cfg.UILang = ""
@@ -582,6 +681,8 @@ func saveSettings() {
 	switch {
 	case engineMode == "deepl" && key == "":
 		app.setNotice(T("DeepL needs an API key. Until you add one, Parley translates offline."))
+	case engineMode == "azure" && azKey == "":
+		app.setNotice(T("Azure needs a key. Until you add one, Parley translates offline."))
 	default:
 		app.setNotice(T("Settings saved."))
 	}

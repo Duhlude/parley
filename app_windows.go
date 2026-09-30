@@ -38,6 +38,7 @@ type Entry struct {
 	Detected   string
 	Err        string
 	At         time.Time
+	Alert      bool // mentions your character or one of your alert words
 }
 
 type ReplyTarget struct {
@@ -73,6 +74,10 @@ type App struct {
 	}
 
 	tr        *Translator
+	az        *Azure
+	azKey     string
+	update    release   // newer version on GitHub, if any
+	lastChime time.Time // alert sound throttle
 	off       *Offline
 	eng       *procEngine
 	overlay   uintptr
@@ -86,7 +91,7 @@ type App struct {
 	voiceErr  error
 }
 
-var app = &App{tr: NewTranslator()}
+var app = &App{tr: NewTranslator(), az: NewAzure()}
 
 func init() { runtime.LockOSThread() }
 
@@ -107,6 +112,7 @@ func main() {
 	app.cfg = loadConfig()
 	setUILang(app.cfg.UILang)
 	app.key = string(unprotect(app.cfg.DeepLKeyEnc))
+	app.azKey = string(unprotect(app.cfg.AzureKeyEnc))
 	app.status = T("Looking for WoW…")
 	app.icon, app.iconSmall = appIcons()
 	loadExtraFonts()
@@ -114,6 +120,7 @@ func main() {
 	setupOffline()
 
 	createOverlay()
+	app.touch() // auto-hide counts quiet time from start-up
 	setClickThrough(app.cfg.ClickThrough)
 	addTray()
 	pRegisterHotKey.Call(app.overlay, hotkeyID, MOD_CONTROL|MOD_SHIFT|MOD_NOREPEAT, 'T')
@@ -122,6 +129,7 @@ func main() {
 	go autoInstall()
 	go captureLoop()
 	go voiceLoop()
+	go updateLoop()
 
 	if app.engineMode() == "deepl" && app.key != "" {
 		go func() { // warn before the allowance runs out
@@ -168,7 +176,8 @@ func setupOffline() {
 	app.prefetchMyLanguage()
 }
 
-// engineMode is "offline" or "deepl". Unset means DeepL when a key is saved.
+// engineMode is "offline", "deepl" or "azure". Unset means the online
+// service whose key is saved (DeepL first), otherwise offline.
 func (a *App) engineMode() string {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -177,16 +186,19 @@ func (a *App) engineMode() string {
 
 func (a *App) engineModeLocked() string {
 	switch a.cfg.Engine {
-	case "offline", "deepl":
+	case "offline", "deepl", "azure":
 		return a.cfg.Engine
 	}
 	if a.key != "" {
 		return "deepl"
 	}
+	if a.azKey != "" {
+		return "azure"
+	}
 	return "offline"
 }
 
-// translate picks the engine. DeepL failures that offline can cover
+// translate picks the engine. Online failures that offline can cover
 // (no internet, allowance used up, bad key) fall back to offline.
 func (a *App) translate(key, text, source, target string) (Translation, error) {
 	tr, err := a.translateRaw(key, text, source, target)
@@ -195,16 +207,25 @@ func (a *App) translate(key, text, source, target string) (Translation, error) {
 }
 
 func (a *App) translateRaw(key, text, source, target string) (Translation, error) {
-	if a.engineMode() == "offline" {
+	a.mu.Lock()
+	mode, azKey, azRegion := a.engineModeLocked(), a.azKey, a.cfg.AzureRegion
+	a.mu.Unlock()
+	var tr Translation
+	var err error
+	switch mode {
+	case "offline":
 		return a.off.Translate(text, source, target)
+	case "azure":
+		tr, err = a.az.Translate(azKey, azRegion, text, source, target)
+	default:
+		tr, err = a.tr.Translate(key, text, source, target)
 	}
-	tr, err := a.tr.Translate(key, text, source, target)
 	if err == nil || a.off.Engine == nil {
 		return tr, err
 	}
 	msg := err.Error()
 	if strings.Contains(msg, "unreachable") || strings.Contains(msg, "allowance") ||
-		strings.Contains(msg, "rejected") || strings.Contains(msg, "add your DeepL") {
+		strings.Contains(msg, "rejected") || strings.Contains(msg, "add your") {
 		if tr2, err2 := a.off.Translate(text, source, target); err2 == nil {
 			return tr2, nil
 		}
@@ -229,6 +250,7 @@ func (a *App) setNotice(s string) {
 	a.notice, a.noticeAt = s, time.Now()
 	a.mu.Unlock()
 	a.refresh()
+	a.wake()
 }
 
 // ---------------------------------------------------------------------------
@@ -418,9 +440,21 @@ func (a *App) incoming(m ChatMessage) {
 		a.setNotice(T("Blizzard hides chat from addons during Mythic+ keys, PvP matches and boss fights. Parley picks it back up afterwards."))
 		return
 	}
+	if m.Type == "N" { // the addon tells us which character you're playing
+		a.mu.Lock()
+		changed := a.cfg.CharName != m.Sender && m.Sender != ""
+		a.cfg.CharName = m.Sender
+		cfg := a.cfg
+		a.mu.Unlock()
+		if changed {
+			saveConfig(cfg)
+		}
+		return
+	}
 	a.mu.Lock()
 	myLang := a.cfg.MyLang
 	key := a.key
+	terms := alertTerms(a.cfg.AlertWords, a.cfg.CharName)
 	a.mu.Unlock()
 
 	if a.isMuted(m.Sender) {
@@ -467,10 +501,18 @@ func (a *App) incoming(m ChatMessage) {
 				e.Gloss = glossFor(m.Text, myLang, 4)
 			}
 			a.noteLanguage(e)
+			e.Alert = mentions(terms, m.Text, tr.Text)
 		}
 		done := e.State == stateDone
+		alert := done && e.Alert
 		a.mu.Unlock()
 		a.refresh()
+		if alert {
+			a.chime()
+		}
+		if done {
+			a.wake()
+		}
 		if done {
 			a.logHistory(e)
 		}
@@ -636,18 +678,48 @@ func (a *App) sendReply(text string) {
 		}
 		src = localizePlaces(src, r.Lang)
 		tr, err := a.translate(key, src, baseLang(myLang), r.Lang)
-		a.mu.Lock()
-		a.replyResult.err = err
-		if err == nil {
-			a.replyResult.text = tr.Text
-			a.replyResult.clip = chatPrefix(r) + tr.Text
-			own := &Entry{Own: true, State: stateDone, At: time.Now(), Translated: tr.Text, Detected: r.Lang,
-				Msg: ChatMessage{Type: r.Type, ChanNum: r.ChanNum, ChanName: r.ChanName, Sender: r.Sender, Text: text}}
-			a.entries = append(a.entries, own)
-			defer a.logHistory(own)
-		}
-		a.mu.Unlock()
-		pPostMessageW.Call(a.overlay, msgReply, 0, 0)
+		a.deliverReply(r, text, tr.Text, err)
+	}()
+}
+
+// deliverReply stores a finished reply (or its error) and lets the GUI
+// thread copy it (finishReply). Safe from any goroutine.
+func (a *App) deliverReply(r ReplyTarget, original, translated string, err error) {
+	a.mu.Lock()
+	a.replyResult.err = err
+	var own *Entry
+	if err == nil {
+		a.replyResult.text = translated
+		a.replyResult.clip = chatPrefix(r) + translated
+		own = &Entry{Own: true, State: stateDone, At: time.Now(), Translated: translated, Detected: r.Lang,
+			Msg: ChatMessage{Type: r.Type, ChanNum: r.ChanNum, ChanName: r.ChanName, Sender: r.Sender, Text: original}}
+		a.entries = append(a.entries, own)
+	}
+	a.mu.Unlock()
+	if own != nil {
+		a.logHistory(own)
+	}
+	pPostMessageW.Call(a.overlay, msgReply, 0, 0)
+}
+
+// sendPhrase sends a quick reply: the built-in translation when the
+// phrasebook has the reply language, otherwise through the engine.
+func (a *App) sendPhrase(p phrase) {
+	a.mu.Lock()
+	r, key := a.reply, a.key
+	a.mu.Unlock()
+	if r.Lang == "" {
+		a.setNotice(T("Pick a reply language first: click a message, or the language button."))
+		return
+	}
+	if t := p.ready(r.Lang); t != "" {
+		a.deliverReply(r, p.EN, t, nil)
+		return
+	}
+	a.setNotice(T("Translating…"))
+	go func() {
+		tr, err := a.translate(key, p.EN, "EN", r.Lang)
+		a.deliverReply(r, p.EN, tr.Text, err)
 	}()
 }
 
@@ -715,6 +787,11 @@ const (
 	cmdHistoryToggle = 504
 	cmdUnmuteAll     = 505
 	cmdClickThrough  = 506
+	cmdEngAzure      = 507
+	cmdAlertSound    = 508
+	cmdUpdateCheck   = 509
+	cmdUpdateGet     = 510
+	cmdAutoHide0     = 520 // + index in autoHideChoices
 	cmdLang0         = 600 // + index in targetLangs: download ahead
 	cmdMsgCopy       = 800
 	cmdMsgCopyOrig   = 801
@@ -724,7 +801,7 @@ const (
 
 func trayMenu() {
 	label := T("Show overlay")
-	if app.visible {
+	if app.visible && !autoHide.hidden {
 		label = T("Hide overlay")
 	}
 	var skinItems []MenuItem
@@ -733,18 +810,24 @@ func trayMenu() {
 	}
 	silent := app.cfg.VoiceMode != "typing"
 	voice := []MenuItem{
-		{Label: T("Offline voice (silent, on this PC)"), ID: cmdVoiceSilent, Checked: silent, Radio: true},
-		{Label: T("Windows voice typing (Win+H popup)"), ID: cmdVoiceTyping, Checked: !silent, Radio: true},
+		{Label: T("Offline voice (silent, on this PC)"), ID: cmdVoiceSilent, Checked: silent, Radio: true,
+			Tip: T("Your speech is recognised on this PC. No popup, and no audio is sent anywhere.")},
+		{Label: T("Windows voice typing (Win+H popup)"), ID: cmdVoiceTyping, Checked: !silent, Radio: true,
+			Tip: T("Uses Windows' own voice typing instead. It shows a small popup and needs Windows speech settings turned on.")},
 		{Sep: true},
-		{Label: T("Send automatically after speaking"), ID: cmdVoiceAuto, Checked: !app.cfg.VoiceManual},
+		{Label: T("Send automatically after speaking"), ID: cmdVoiceAuto, Checked: !app.cfg.VoiceManual,
+			Tip: T("Translate and copy your reply as soon as you stop talking. Turn off to check the text first.")},
 		{Sep: true},
-		{Label: T("Speech model: Accurate (466 MB)"), ID: cmdModelAccurate, Checked: app.cfg.VoiceModel != "fast", Radio: true},
-		{Label: T("Speech model: Fast (148 MB)"), ID: cmdModelFast, Checked: app.cfg.VoiceModel == "fast", Radio: true},
+		{Label: T("Speech model: Accurate (466 MB)"), ID: cmdModelAccurate, Checked: app.cfg.VoiceModel != "fast", Radio: true,
+			Tip: T("Better recognition, bigger one-time download, a little slower.")},
+		{Label: T("Speech model: Fast (148 MB)"), ID: cmdModelFast, Checked: app.cfg.VoiceModel == "fast", Radio: true,
+			Tip: T("Smaller and quicker, a bit less accurate.")},
 		{Sep: true},
-		{Label: T("Open voice log"), ID: cmdVoiceLog},
+		{Label: T("Open voice log"), ID: cmdVoiceLog, Tip: T("Troubleshooting details for voice input.")},
 	}
 	history := []MenuItem{
-		{Label: T("Save translated chat to a daily file"), ID: cmdHistoryToggle, Checked: app.historyOn()},
+		{Label: T("Save translated chat to a daily file"), ID: cmdHistoryToggle, Checked: app.historyOn(),
+			Tip: T("Keeps one text file per day with translated chat and your replies, so you can look things up later.")},
 		{Label: T("Open chat history folder"), ID: cmdHistoryOpen},
 	}
 	items := []MenuItem{
@@ -756,14 +839,24 @@ func trayMenu() {
 		{Label: T("Voice input"), Sub: voice},
 		{Label: T("Skin"), Sub: skinItems},
 		{Label: T("Chat history"), Sub: history},
+		{Label: T("Auto-hide overlay"), Sub: autoHideMenu()},
 		{Sep: true},
-		{Label: T("Click-through overlay"), ID: cmdClickThrough, Checked: app.cfg.ClickThrough},
-		{Label: T("Explain gaming terms"), ID: cmdExplain, Checked: app.explainTerms()},
-		{Label: T("Install / update WoW addon"), ID: cmdInstall},
-		{Label: T("Clear messages"), ID: cmdClear},
+		{Label: T("Click-through overlay"), ID: cmdClickThrough, Checked: app.cfg.ClickThrough,
+			Tip: T("Mouse clicks go through the overlay to WoW, so you can't hit it by accident. Ctrl+Shift+T to use it, Esc to go back.")},
+		{Label: T("Alert sound"), ID: cmdAlertSound, Checked: app.cfg.AlertSound != "off",
+			Tip: T("Play a soft sound when a message mentions your character or one of your alert words (Settings).")},
+		{Label: T("Check for updates"), ID: cmdUpdateCheck, Checked: app.cfg.UpdateCheck != "off",
+			Tip: T("Once a day, check GitHub for a new version of Parley.")},
+		{Label: T("Explain gaming terms"), ID: cmdExplain, Checked: app.explainTerms(),
+			Tip: T("Adds a \"Terms\" line under messages that explains WoW jargon (LFG, dungeon names, class terms) in your language.")},
+		{Label: T("Install / update WoW addon"), ID: cmdInstall, Tip: T("Copies the latest Parley addon into your WoW folders. Type /reload in game afterwards.")},
+		{Label: T("Clear messages"), ID: cmdClear, Tip: T("Empties the overlay. Chat history files are kept.")},
 	}
 	if n := len(app.cfg.Muted); n > 0 {
-		items = append(items, MenuItem{Label: Tf("Unmute everyone (%d muted)", n), ID: cmdUnmuteAll})
+		items = append(items, MenuItem{Label: Tf("Unmute everyone (%d muted)", n), ID: cmdUnmuteAll, Tip: T("Show messages from everyone you muted again.")})
+	}
+	if app.update.Version != "" {
+		items = append([]MenuItem{items[0], {Label: Tf("Download Parley %s", app.update.Version), ID: cmdUpdateGet, Tip: T("Opens the download page for the new version.")}, {Sep: true}}, items[1:]...)
 	}
 	items = append(items, MenuItem{Sep: true}, MenuItem{Label: T("Quit Parley"), ID: cmdQuit})
 	pSetForegroundWindow.Call(app.overlay)
@@ -775,22 +868,50 @@ func runCommand(cmd int) {
 		setSkin(skins[cmd-cmdSkin0].ID)
 		return
 	}
+	if cmd >= cmdAutoHide0 && cmd < cmdAutoHide0+len(autoHideChoices) {
+		setAutoHide(autoHideChoices[cmd-cmdAutoHide0])
+		return
+	}
 	if cmd >= cmdLang0 && cmd < cmdLang0+len(targetLangs) {
 		app.prefetch(ffCode(targetLangs[cmd-cmdLang0].Code))
 		return
 	}
 	switch cmd {
-	case cmdEngOffline, cmdEngDeepL:
+	case cmdEngOffline, cmdEngDeepL, cmdEngAzure:
 		app.mu.Lock()
-		app.cfg.Engine = map[int]string{cmdEngOffline: "offline", cmdEngDeepL: "deepl"}[cmd]
-		noKey := app.key == ""
+		app.cfg.Engine = map[int]string{cmdEngOffline: "offline", cmdEngDeepL: "deepl", cmdEngAzure: "azure"}[cmd]
+		noKey, noAz := app.key == "", app.azKey == ""
 		cfg := app.cfg
 		app.mu.Unlock()
 		saveConfig(cfg)
 		if cmd == cmdEngDeepL && noKey {
 			app.setNotice(T("DeepL needs an API key (Settings). Until then Parley translates offline."))
 		}
+		if cmd == cmdEngAzure && noAz {
+			app.setNotice(T("Azure needs a key (Settings). Until then Parley translates offline."))
+		}
 		app.refresh()
+	case cmdAlertSound, cmdUpdateCheck:
+		app.mu.Lock()
+		p := &app.cfg.AlertSound
+		if cmd == cmdUpdateCheck {
+			p = &app.cfg.UpdateCheck
+		}
+		if *p == "off" {
+			*p = ""
+		} else {
+			*p = "off"
+		}
+		cfg := app.cfg
+		app.mu.Unlock()
+		saveConfig(cfg)
+	case cmdUpdateGet:
+		app.mu.Lock()
+		u := app.update.URL
+		app.mu.Unlock()
+		if u != "" {
+			openURL(u)
+		}
 	case cmdModelsFolder:
 		os.MkdirAll(app.off.Dir, 0o755)
 		openURL(app.off.Dir)

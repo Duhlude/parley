@@ -18,10 +18,13 @@ Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Pa
 
 - **No account needed**: Parley translates **offline, on your PC**, with the same open translation models Firefox uses. Nothing to sign up for, no limits, and chat never leaves your computer. Each language downloads once (about 50 MB) the first time someone uses it.
 - **Real sentences, not just phrases**: 30+ languages including Spanish, Portuguese, Russian, German, French, Italian, Polish, Chinese, Japanese and Korean, in both directions. Languages without a direct model are translated through English.
-- **Optional DeepL**: paste a DeepL API key for the best quality. If DeepL is unreachable or out of characters, Parley falls back to offline automatically.
+- **Optional online engines**: paste a **DeepL** key for the best quality, or an **Azure Translator** key (2 million characters a month free). If either is unreachable or out of characters, Parley falls back to offline automatically.
 - **Only what you need**: English chat is filtered out for free. An in-game settings window (`/parley` or the minimap button) has one-click presets like *Friends & group* or *Group only*, per-chat-type switches, and your own saved presets.
 - **Reply in their language**: click a message, type in English, press Enter. Parley translates it, adds the right chat command (`/w Name`, `/p`, `/4` …) and copies it. You paste it into WoW yourself.
-- **Handy extras**: right-click a message to copy it, reply, or mute a spammer; a click-through mode so the overlay never catches a stray click; a daily chat-history file.
+- **Quick replies**: one click for *Invite me, please*, *Thanks for the group!*, *One moment* and more, already translated into nine languages.
+- **Alerts**: messages that mention your character or words you pick (*Deadmines*, *WTB*, *healer*) are highlighted with a soft sound.
+- **Auto-hide**: the overlay can fade away when chat is quiet and come back the moment someone writes.
+- **Handy extras**: right-click a message to copy it, reply, or mute a spammer; a click-through mode so the overlay never catches a stray click; a daily chat-history file, and a notice when a new version is out.
 - **Voice replies**: press Ctrl+Shift+Y and talk. Speech is transcribed on your own PC (whisper.cpp), with no popup and no online speech service.
 - **Knows gamer talk**: WoW terms (tank, LFG, WTS, dungeon abbreviations) stay in English, chat shortcuts (sry, w8, idk…) and Brazilian shorthand (vc, blz, kkkk…) are spelled out for the translator, and an optional "Terms" line explains WoW jargon in your language. The slang dictionary comes from the MIT-licensed BabelChat and WoW Translator projects.
 - **In your language**: the app, installer and addon follow your Windows and WoW language (German, Spanish, French, Italian, Portuguese, Russian, Korean, Chinese), and chat is translated into your language out of the box.

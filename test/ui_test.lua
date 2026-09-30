@@ -71,6 +71,7 @@ local function pendingCount(prefix)
   for _, p in ipairs(ns.pending()) do if p:sub(1, #prefix) == prefix then n = n + 1 end end
   return n
 end
+assert(pendingCount("N\031\031\031Max\031") == 1, "character name sent at login")
 local secret = { secret = true }
 evFrame._scripts.OnEvent(evFrame, "CHAT_MSG_PARTY", secret, secret)
 evFrame._scripts.OnEvent(evFrame, "CHAT_MSG_PARTY", secret, secret)

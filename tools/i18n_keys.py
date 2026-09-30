@@ -30,5 +30,8 @@ for p in sorted(glob.glob(os.path.join(ROOT, "*.go"))):
         m = re.search(r'engineLabels\s*=\s*\[\]string\{(.*?)\}', s, re.S)
         for v in re.findall(r'"([^"]+)"', m.group(1)):
             add(v)
+    if p.endswith("phrasebook.go"):
+        for v in re.findall(r'^\t\{"([^"]+)", map', s, re.M):
+            add(v)
 if __name__ == "__main__":
     print(json.dumps(keys, ensure_ascii=False, indent=1))

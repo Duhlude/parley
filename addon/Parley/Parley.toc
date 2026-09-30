@@ -2,7 +2,7 @@
 ## Title: Parley
 ## Notes: Live chat translation. Requires the free Parley desktop app (Windows).
 ## Author: Magichouse Media
-## Version: 1.4.0
+## Version: 1.5.0
 ## X-License: MIT
 ## IconTexture: Interface\AddOns\Parley\Media\icon
 ## X-Category: Chat & Communication

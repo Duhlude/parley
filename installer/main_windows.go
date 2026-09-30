@@ -22,7 +22,7 @@ import (
 //go:embed payload
 var payload embed.FS
 
-const version = "1.5.0"
+const version = "1.6.0"
 
 var (
 	user32       = syscall.NewLazyDLL("user32.dll")

@@ -302,6 +302,15 @@ local function onChat(event, ...)
   end
 end
 
+-- Tell the app which character you're playing, so it can alert you when
+-- someone mentions you. Sent at login and every few minutes (the app may
+-- start after you log in).
+local function sendName()
+  if db and db.enabled and me then
+    enqueue(table.concat({ "N", "", "", clean(me), "" }, SEP))
+  end
+end
+
 local events = CreateFrame("Frame")
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("PLAYER_LOGIN")
@@ -324,6 +333,8 @@ events:SetScript("OnEvent", function(_, event, ...)
   elseif event == "PLAYER_LOGIN" then
     me = UnitName("player")
     layout()
+    sendName()
+    if C_Timer and C_Timer.NewTicker then C_Timer.NewTicker(300, sendName) end
     say(T("loaded. Type /parley for settings."))
   elseif event == "DISPLAY_SIZE_CHANGED" or event == "UI_SCALE_CHANGED" then
     layout()

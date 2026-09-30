@@ -1,5 +1,19 @@
 # Changelog
 
+## App 1.6.0 · Addon 1.5.0 (2026-09-29)
+
+### Added
+- **Azure Translator engine.** A second online option next to DeepL: 2 million characters a month free on Microsoft's free tier. Paste the key and region under Settings → Translation engine → Azure. Falls back to offline like DeepL does. The translation benchmark tests it too.
+- **Quick replies.** The speech-bubble button in the reply bar opens ten common phrases (*Invite me, please*, *On my way!*, *Thanks for the group!*, *Sorry, I don't speak your language well*…), already translated into Portuguese, Spanish, Russian, German, French, Italian, Korean, Chinese and Japanese, so they're copied instantly.
+- **Alerts.** Messages that mention your character or your own alert words (Settings → *Alert me when a message mentions*) get an orange bar and a soft notification sound (tray → Alert sound).
+- **Auto-hide.** Tray → *Auto-hide overlay*: after 10 s, 30 s, 1 or 2 minutes without new chat the overlay fades out (and stops catching clicks); it fades back in when a foreign message arrives, on an alert or notice, with Ctrl+Shift+T or a click on the tray icon. It stays put while you hover it, type a reply or have a menu open. Off by default.
+- **Tooltips everywhere.** Hover over any menu option, settings field or overlay button for a short explanation of what it does, in your interface language.
+- **Update notice.** Parley checks GitHub about once a day and tells you when a new version is out (tray → Download Parley x.y.z; turn off under tray → Check for updates).
+
+### Addon 1.5.0
+- Tells the app which character you're playing (at login and every 5 minutes), for name alerts.
+
+
 ## App 1.5.0 · Addon 1.4.0 (2026-09-29)
 
 ### Added

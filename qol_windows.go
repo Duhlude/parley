@@ -33,13 +33,17 @@ func translationMenu() []MenuItem {
 		dl = append(dl, it)
 	}
 	pairs, size := app.off.installedPairs()
-	folder := MenuItem{Label: T("Open offline models folder"), ID: cmdModelsFolder}
+	folder := MenuItem{Label: T("Open offline models folder"), ID: cmdModelsFolder, Tip: T("Where downloaded languages are stored. Delete a folder there to free space; Parley downloads it again when needed.")}
 	if len(pairs) > 0 {
 		folder.Hint = fmt.Sprintf("%d MB", size>>20)
 	}
 	return []MenuItem{
-		{Label: T("Offline (free, on this PC)"), ID: cmdEngOffline, Checked: mode == "offline", Radio: true},
-		{Label: T("DeepL (API key)"), ID: cmdEngDeepL, Checked: mode == "deepl", Radio: true},
+		{Label: T("Offline (free, on this PC)"), ID: cmdEngOffline, Checked: mode == "offline", Radio: true,
+			Tip: T("Free and private: translates on your PC. Each language downloads once (about 50 MB).")},
+		{Label: T("DeepL (API key)"), ID: cmdEngDeepL, Checked: mode == "deepl", Radio: true,
+			Tip: T("The best quality. Needs a DeepL API key in Settings. Falls back to offline if DeepL fails.")},
+		{Label: T("Azure Translator (API key)"), ID: cmdEngAzure, Checked: mode == "azure", Radio: true,
+			Tip: T("Very good quality, 2 million free characters a month. Needs an Azure key in Settings. Falls back to offline if Azure fails.")},
 		{Sep: true},
 		{Label: T("Download a language now"), Sub: dl},
 		folder,
@@ -87,6 +91,7 @@ func (a *App) prefetchMyLanguage() {
 
 // setClickThrough makes the overlay ignore (or take) mouse clicks.
 func setClickThrough(on bool) {
+	on = on || autoHide.hidden // a faded-out overlay never catches clicks
 	const wsExTransparent = 0x20
 	gwlExStyle := -20
 	idx := uintptr(gwlExStyle)
@@ -127,9 +132,10 @@ func messageMenu(e *Entry) {
 	}
 	items = append(items, MenuItem{Label: T("Copy original"), ID: cmdMsgCopyOrig})
 	if !e.Own {
-		items = append(items, MenuItem{Label: Tf("Reply to %s", name), ID: cmdMsgReply})
+		items = append(items, MenuItem{Label: Tf("Reply to %s", name), ID: cmdMsgReply, Tip: T("Your next reply goes to this player, in their language.")})
 		if e.Msg.Sender != "" {
-			items = append(items, MenuItem{Sep: true}, MenuItem{Label: Tf("Mute %s", name), Hint: T("hide their messages"), ID: cmdMsgMute})
+			items = append(items, MenuItem{Sep: true}, MenuItem{Label: Tf("Mute %s", name), Hint: T("hide their messages"), ID: cmdMsgMute,
+				Tip: T("Hide everything this player sends (spam, gold sellers). Tray icon → Unmute everyone to undo.")})
 		}
 	}
 	cmd := showMenuAtCursor(items)

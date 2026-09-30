@@ -45,6 +45,7 @@ type benchResult struct {
 	Input   string    `json:"input"`
 	Offline *benchRun `json:"offline,omitempty"`
 	DeepL   *benchRun `json:"deepl,omitempty"`
+	Azure   *benchRun `json:"azure,omitempty"`
 }
 
 type benchReport struct {
@@ -52,6 +53,7 @@ type benchReport struct {
 	CPU           string             `json:"cpu"`
 	Threads       int                `json:"threads"`
 	DeepLUsed     bool               `json:"deepl_used"`
+	AzureUsed     bool               `json:"azure_used"`
 	DeepLNote     string             `json:"deepl_note,omitempty"`
 	PairSetupMs   map[string]float64 `json:"offline_pair_setup_ms"`
 	EngineRAMMB   float64            `json:"offline_engine_peak_ram_mb"`
@@ -105,6 +107,7 @@ func runBenchmark() {
 	}
 	cfg := loadConfig()
 	key := string(unprotect(cfg.DeepLKeyEnc))
+	azKey, azRegion := string(unprotect(cfg.AzureKeyEnc)), cfg.AzureRegion
 
 	rep := benchReport{When: time.Now().Format(time.RFC3339), CPU: os.Getenv("PROCESSOR_IDENTIFIER"),
 		Threads: runtime.NumCPU(), PairSetupMs: map[string]float64{}}
@@ -191,7 +194,7 @@ func runBenchmark() {
 	eng.Close()
 
 	// 3. DeepL.
-	fmt.Println("\n3/4  DeepL...")
+	fmt.Println("\n3/4  Online engines: DeepL...")
 	if key == "" {
 		rep.DeepLNote = "no DeepL key saved in Parley's settings"
 		fmt.Println("   skipped: no DeepL key saved in Parley's settings")
@@ -215,6 +218,27 @@ func runBenchmark() {
 				}
 				time.Sleep(120 * time.Millisecond) // stay well under DeepL's rate limit
 			}
+		}
+	}
+	fmt.Println("\n     Azure...")
+	if azKey == "" {
+		fmt.Println("   skipped: no Azure key saved in Parley's settings")
+	} else {
+		rep.AzureUsed = true
+		az := NewAzure()
+		for i, c := range cases {
+			src, hint := input(c)
+			t := time.Now()
+			tr, err := az.Translate(azKey, azRegion, src, hint, c.To)
+			tr.Text = stripKeep(tr.Text)
+			ms := msSince(t)
+			r := &benchRun{Text: tr.Text, Detected: tr.Detected, Ms: ms}
+			if err != nil {
+				r.Err = err.Error()
+			}
+			res[i].Azure = r
+			fmt.Printf("   %-12s %7.0f ms  %s\n", c.ID, ms, tr.Text)
+			time.Sleep(120 * time.Millisecond)
 		}
 	}
 	rep.Results = res

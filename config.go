@@ -20,15 +20,22 @@ type Config struct {
 	ShowOriginal bool     `json:"showOriginal"`
 	CellSize     int      `json:"cellSize"`
 	Skin         string   `json:"skin"`
-	VoiceMode    string   `json:"voiceMode"`       // "silent" or "typing" (Win+H)
-	VoiceModel   string   `json:"voiceModel"`      // "accurate" (small) or "fast" (base)
-	VoiceManual  bool     `json:"voiceManual"`     // true = review before sending
-	ExplainTerms string   `json:"explainTerms"`    // ""/auto, "on", "off"
-	Engine       string   `json:"engine"`          // ""/auto, "offline", "deepl"
-	Muted        []string `json:"muted,omitempty"` // senders whose messages are hidden
-	History      string   `json:"history"`         // ""/on, "off": save translated chat to a daily text file
-	ClickThrough bool     `json:"clickThrough"`    // overlay ignores the mouse until Ctrl+Shift+T
-	UILang       string   `json:"uiLang"`          // interface language; ""/auto = Windows
+	VoiceMode    string   `json:"voiceMode"`             // "silent" or "typing" (Win+H)
+	VoiceModel   string   `json:"voiceModel"`            // "accurate" (small) or "fast" (base)
+	VoiceManual  bool     `json:"voiceManual"`           // true = review before sending
+	ExplainTerms string   `json:"explainTerms"`          // ""/auto, "on", "off"
+	Engine       string   `json:"engine"`                // ""/auto, "offline", "deepl", "azure"
+	Muted        []string `json:"muted,omitempty"`       // senders whose messages are hidden
+	History      string   `json:"history"`               // ""/on, "off": save translated chat to a daily text file
+	ClickThrough bool     `json:"clickThrough"`          // overlay ignores the mouse until Ctrl+Shift+T
+	UILang       string   `json:"uiLang"`                // interface language; ""/auto = Windows
+	AzureKeyEnc  []byte   `json:"azureKeyEnc,omitempty"` // DPAPI-encrypted
+	AzureRegion  string   `json:"azureRegion,omitempty"`
+	AlertWords   string   `json:"alertWords,omitempty"`  // comma-separated; the character name is added automatically
+	AlertSound   string   `json:"alertSound,omitempty"`  // ""/on, "off"
+	CharName     string   `json:"charName,omitempty"`    // last character the addon reported
+	UpdateCheck  string   `json:"updateCheck,omitempty"` // ""/on, "off"
+	AutoHide     int      `json:"autoHide,omitempty"`    // seconds of quiet before the overlay fades out; 0 = off
 	X, Y, W, H   int
 }
 

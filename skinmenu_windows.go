@@ -11,6 +11,7 @@ package main
 
 import (
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -24,6 +25,7 @@ type MenuItem struct {
 	Title    bool // gold, unclickable section heading
 	Disabled bool
 	Sub      []MenuItem
+	Tip      string // explanation shown in a tooltip after hovering
 }
 
 func (it MenuItem) selectable() bool { return !it.Sep && !it.Title && !it.Disabled }
@@ -131,6 +133,8 @@ func showMenu(items []MenuItem, x, y int32, above bool) int {
 		pDispatchMessageW.Call(uintptr(unsafe.Pointer(&m)))
 	}
 	pKillTimer.Call(root, menuTimerID)
+	pKillTimer.Call(root, menuTipTimerID)
+	hideTip("menu")
 	stack := menuStack
 	menuStack = nil
 	pReleaseCapture.Call()
@@ -307,6 +311,7 @@ func setMenuHover(d, i int) {
 	}
 	lv.hover = i
 	invalidate(lv.hwnd)
+	menuHoverChanged()
 	// a deeper level showing a different item's submenu closes after a pause
 	menuPending = d
 	pSetTimer.Call(menuStack[0].hwnd, menuTimerID, 220, 0)
@@ -370,6 +375,7 @@ func moveMenuHover(d, dir int, fromEdge bool) {
 			lv.hover = i
 			ensureMenuRowVisible(lv, i)
 			invalidate(lv.hwnd)
+			menuHoverChanged()
 			closeMenuLevelsAbove(d)
 			return
 		}
@@ -461,6 +467,11 @@ func menuProc(h, msg, wp, lp uintptr) uintptr {
 		}
 		return 0
 	case WM_TIMER:
+		if wp == menuTipTimerID {
+			pKillTimer.Call(h, menuTipTimerID)
+			showMenuTip()
+			return 0
+		}
 		if wp == menuTimerID {
 			pKillTimer.Call(h, menuTimerID)
 			if menuPending >= 0 {
@@ -753,4 +764,35 @@ func drawMenuScrollMark(hdc uintptr, cx, y int32, up bool) {
 	}
 	g.line(cx-a, y-d/2, cx, y+d/2, argb(colAccent, 255), 1.8)
 	g.line(cx, y+d/2, cx+a, y-d/2, argb(colAccent, 255), 1.8)
+}
+
+// menuHoverChanged hides the item tooltip and restarts its delay.
+func menuHoverChanged() {
+	hideTip("menu")
+	if len(menuStack) > 0 {
+		pSetTimer.Call(menuStack[0].hwnd, menuTipTimerID, uintptr(tipDelay/time.Millisecond), 0)
+	}
+}
+
+// showMenuTip shows the hovered item's Tip beside the deepest menu level.
+func showMenuTip() {
+	for d := len(menuStack) - 1; d >= 0; d-- {
+		lv := menuStack[d]
+		if lv.hover < 0 || lv.hover >= len(lv.items) {
+			continue
+		}
+		it := lv.items[lv.hover]
+		if it.Tip == "" || len(it.Sub) > 0 {
+			return
+		}
+		row := lv.rows[lv.hover]
+		y := lv.rect.Top + row.Top - lv.scroll
+		w, _ := tipSize(it.Tip)
+		x := lv.rect.Right + sc(4)
+		if wa := workAreaAt(x, y); x+w > wa.Right {
+			x = lv.rect.Left - w - sc(4)
+		}
+		showTipAt("menu", it.Tip, x, y)
+		return
+	}
 }
