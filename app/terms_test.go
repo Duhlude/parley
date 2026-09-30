@@ -83,10 +83,10 @@ func TestKeepWords(t *testing.T) {
 			t.Errorf("prepareIncoming(%q) = %q, want %q", c.in, got, c.want)
 		}
 	}
-	// a place name already marked isn't locked again
-	setKeepWords("Ventobravo")
-	if got := prepareIncoming("vamos pra Ventobravo", "EN-US"); got != "vamos pra \x02Stormwind\x03" {
-		t.Errorf("place: %q", got)
+	// the player's words win over place names inside them
+	setKeepWords("Ironforge Brewers")
+	if got := prepareReply("join Ironforge Brewers in Ironforge", "DE"); got != "join \x04Ironforge Brewers\x05 in \x02Eisenschmiede\x03" {
+		t.Errorf("place inside a kept name: %q", got)
 	}
 	setKeepWords("Sombra Eterna")
 	in := prepareReply("join Sombra Eterna, we raid", "PT-BR")
@@ -101,5 +101,11 @@ func TestKeepWords(t *testing.T) {
 	}
 	if a := toAzureHTML(in, "PT-BR"); !strings.Contains(a, `<span translate="no">Sombra Eterna</span>`) {
 		t.Errorf("azure %q", a)
+	}
+}
+
+func TestSameMeaning(t *testing.T) {
+	if !sameMeaning("Sure, I can tank!", "sure i can tank") || sameMeaning("I can tank", "I can heal") {
+		t.Error("sameMeaning")
 	}
 }

@@ -18,6 +18,7 @@ Right-click any message for:
 
 - **Copy translation** / **Copy original**
 - **Reply to …**: selects the sender and puts the cursor in the reply box.
+- **Conversation with …**: shows only that player's messages and your replies to them, as one conversation, and makes your next reply go to them. Handy for a long back-and-forth in whispers while Trade chat keeps scrolling. Click the bar at the top (or **Show all messages** in this menu) to see everything again.
 - **Mute …**: hides everything that player sends from now on (gold sellers, spammers). Undo with tray icon → **Unmute everyone**.
 
 ## Click-through overlay
@@ -38,6 +39,10 @@ Translated messages and your replies are saved to a daily text file in `%APPDATA
 The **Reply in …** button sets the reply language. It follows the language of the person you're replying to automatically; pick a language from the list to lock it, or choose *Match their language automatically* to go back. **Tab** in the reply box cycles through recent languages, and **Esc** returns to WoW.
 
 WoW chat lines are limited to 255 characters; Parley warns you if a translation is longer.
+
+### Checking what your reply says
+
+Under each reply Parley shows it **translated back** into your language, so you can see what the other player will read: *Reads back as: Of course, I can tank for you*. When it comes back with the same words you typed, it says *Reads back the same.* If the meaning is off, reword your reply and send it again before pasting. Turn this off under tray icon → **Check replies by translating them back** (with DeepL or Azure it uses a few extra characters per reply).
 
 ### Quick replies
 

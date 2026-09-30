@@ -24,7 +24,7 @@ import (
 //go:embed payload
 var payload embed.FS
 
-const version = "1.8.0"
+const version = "1.9.0"
 
 // wowFlavors: the WoW game folders Parley installs its addon into (keep in
 // step with app/config.go).
@@ -60,6 +60,12 @@ func box(text string, flags uintptr) int {
 
 func installDir() string {
 	return filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "Parley")
+}
+
+// quiet keeps a helper program's console window from flashing up.
+func quiet(cmd *exec.Cmd) *exec.Cmd {
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
+	return cmd
 }
 
 func hidden(name string, args ...string) error {
@@ -99,8 +105,8 @@ func shortcut(lnk, target, dir string) error {
 }
 
 func desktopDir() string {
-	out, err := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command",
-		"[Environment]::GetFolderPath('Desktop')").Output()
+	out, err := quiet(exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command",
+		"[Environment]::GetFolderPath('Desktop')")).Output()
 	if err == nil {
 		if d := strings.TrimSpace(string(out)); d != "" {
 			return d
@@ -116,37 +122,73 @@ func startMenuLnk() string {
 const uninstKey = `HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\Parley`
 const runKey = `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
 
-// copyPayload writes the app files into dir. Right after Parley quits its
-// files can stay locked for a moment, so it retries for a while.
+// copyPayload writes the app files into dir as one unit: each file being
+// replaced is first renamed to *.old (Windows allows that even for a program
+// that's still running), and if anything fails the old files are put back,
+// so a failed update never leaves a mix of old and new files.
 func copyPayload(dir string) error {
-	var err error
-	for try := 0; try < 40; try++ {
-		if try > 0 {
-			time.Sleep(500 * time.Millisecond)
-		}
-		err = fs.WalkDir(payload, "payload", func(p string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
+	cleanOld(dir)
+	type swap struct{ dst, old string }
+	var done []swap
+	rollback := func() {
+		for i := len(done) - 1; i >= 0; i-- {
+			os.Remove(done[i].dst)
+			if done[i].old != "" {
+				os.Rename(done[i].old, done[i].dst)
 			}
-			rel := strings.TrimPrefix(strings.TrimPrefix(p, "payload"), "/")
-			if rel == "" {
-				return nil
-			}
-			dst := filepath.Join(dir, filepath.FromSlash(rel))
-			if d.IsDir() {
-				return os.MkdirAll(dst, 0o755)
-			}
-			b, err := payload.ReadFile(p)
-			if err != nil {
-				return err
-			}
-			return os.WriteFile(dst, b, 0o755)
-		})
-		if err == nil {
-			return nil
 		}
 	}
-	return err
+	err := fs.WalkDir(payload, "payload", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel := strings.TrimPrefix(strings.TrimPrefix(p, "payload"), "/")
+		if rel == "" {
+			return nil
+		}
+		dst := filepath.Join(dir, filepath.FromSlash(rel))
+		if d.IsDir() {
+			return os.MkdirAll(dst, 0o755)
+		}
+		b, err := payload.ReadFile(p)
+		if err != nil {
+			return err
+		}
+		sw := swap{dst: dst}
+		if exists(dst) {
+			sw.old = dst + ".old"
+			os.Remove(sw.old)
+			var rerr error
+			for try := 0; try < 20; try++ { // a file may stay locked for a moment
+				if rerr = os.Rename(dst, sw.old); rerr == nil {
+					break
+				}
+				time.Sleep(500 * time.Millisecond)
+			}
+			if rerr != nil {
+				return rerr
+			}
+		}
+		done = append(done, sw)
+		return os.WriteFile(dst, b, 0o755)
+	})
+	if err != nil {
+		rollback()
+		return err
+	}
+	cleanOld(dir)
+	return nil
+}
+
+// cleanOld removes the *.old files a previous update left behind (they
+// can't be deleted while the old Parley is still running).
+func cleanOld(dir string) {
+	filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+		if err == nil && !d.IsDir() && strings.HasSuffix(p, ".old") {
+			os.Remove(p)
+		}
+		return nil
+	})
 }
 
 func exists(p string) bool { _, err := os.Stat(p); return err == nil }
@@ -166,6 +208,13 @@ func install(update bool) {
 	}
 	if err := copyPayload(dir); err != nil {
 		box(T("Install failed while copying files:")+"\n"+err.Error(), mbOK|mbWarn)
+		if update { // nothing was changed: bring the old Parley back
+			if exe := filepath.Join(dir, "Parley.exe"); exists(exe) {
+				cmd := exec.Command(exe)
+				cmd.Dir = dir
+				cmd.Start()
+			}
+		}
 		return
 	}
 	// keep a copy of the installer as the uninstaller
@@ -252,7 +301,7 @@ func wowFolders() []string {
 	var out []string
 	for _, key := range []string{`HKLM\SOFTWARE\WOW6432Node\Blizzard Entertainment\World of Warcraft`,
 		`HKLM\SOFTWARE\Blizzard Entertainment\World of Warcraft`} {
-		b, err := exec.Command("reg", "query", key, "/v", "InstallPath").Output()
+		b, err := quiet(exec.Command("reg", "query", key, "/v", "InstallPath")).Output()
 		if err != nil {
 			continue
 		}

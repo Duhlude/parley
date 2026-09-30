@@ -251,5 +251,15 @@
  "WoW folder": "Pasta do WoW",
  "Never translate these names or words": "Nunca traduzir estes nomes ou palavras",
  "e.g. your guild name, nicknames": "ex.: nome da sua guilda, apelidos",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Nomes e palavras que o Parley deixa exatamente como estão, nas mensagens e nas suas respostas: o nome da sua guilda, apelidos, piadas internas. Separe com vírgulas."
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Nomes e palavras que o Parley deixa exatamente como estão, nas mensagens e nas suas respostas: o nome da sua guilda, apelidos, piadas internas. Separe com vírgulas.",
+ "Check replies by translating them back": "Conferir respostas traduzindo de volta",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "Depois de traduzir sua resposta, o Parley a traduz de volta para o seu idioma e mostra embaixo, para você ver o que o outro jogador vai ler. Com DeepL ou Azure isso usa alguns caracteres a mais.",
+ "Reads back the same.": "A tradução de volta confere.",
+ "Reads back as: %s": "De volta fica: %s",
+ "Conversation with %s": "Conversa com %s",
+ "click to show all messages": "clique para ver todas as mensagens",
+ "Show all messages": "Mostrar todas as mensagens",
+ "Leave the conversation view and show everything again.": "Sair da visão de conversa e mostrar tudo de novo.",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "Mostrar só as mensagens deste jogador e suas respostas a ele, como uma conversa. Útil para sussurros.",
+ "Showing one conversation. Click to see all messages again.": "Mostrando uma conversa. Clique para ver todas as mensagens de novo."
 }

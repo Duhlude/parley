@@ -146,3 +146,17 @@ func quickReplyMenu() {
 		app.sendPhrase(phrasebook[cmd-1300])
 	}
 }
+
+// cleanUpdateLeftovers deletes the *.old copies the installer leaves when it
+// replaces files that were still in use (the old Parley was still closing).
+func cleanUpdateLeftovers() {
+	time.Sleep(5 * time.Second)
+	exe, err := os.Executable()
+	if err != nil || !installedCopy() {
+		return
+	}
+	old, _ := filepath.Glob(filepath.Join(filepath.Dir(exe), "*.old"))
+	for _, f := range old {
+		os.Remove(f)
+	}
+}

@@ -251,5 +251,15 @@
  "WoW folder": "WoW 폴더",
  "Never translate these names or words": "번역하지 않을 이름이나 단어",
  "e.g. your guild name, nicknames": "예: 길드 이름, 별명",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Parley가 메시지와 답장에서 그대로 두는 이름과 단어입니다. 길드 이름, 별명, 친구끼리 쓰는 말 등. 쉼표로 구분하세요."
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Parley가 메시지와 답장에서 그대로 두는 이름과 단어입니다. 길드 이름, 별명, 친구끼리 쓰는 말 등. 쉼표로 구분하세요.",
+ "Check replies by translating them back": "답장을 다시 번역해서 확인",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "Parley가 답장을 번역한 뒤 다시 내 언어로 번역해 답장 아래에 보여 줍니다. 상대가 무엇을 읽게 될지 확인할 수 있습니다. DeepL이나 Azure에서는 글자 수를 조금 더 사용합니다.",
+ "Reads back the same.": "다시 번역해도 같은 뜻입니다.",
+ "Reads back as: %s": "다시 번역: %s",
+ "Conversation with %s": "%s 님과의 대화",
+ "click to show all messages": "클릭하면 모든 메시지 표시",
+ "Show all messages": "모든 메시지 보기",
+ "Leave the conversation view and show everything again.": "대화 보기를 끝내고 다시 모든 메시지를 표시합니다.",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "이 플레이어의 메시지와 내 답장만 하나의 대화로 보여 줍니다. 귓속말에 편리합니다.",
+ "Showing one conversation. Click to see all messages again.": "대화 하나만 보고 있습니다. 클릭하면 모든 메시지를 다시 봅니다."
 }

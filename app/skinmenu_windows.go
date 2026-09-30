@@ -121,6 +121,7 @@ func showMenu(items []MenuItem, x, y int32, above bool) int {
 	pSetForegroundWindow.Call(root)
 	pSetFocus.Call(root)
 	pSetCapture.Call(root)
+	setArrowCursor() // with the capture held, Windows never sends WM_SETCURSOR
 
 	var m MSG
 	for !menuDone {
@@ -428,6 +429,7 @@ func menuProc(h, msg, wp, lp uintptr) uintptr {
 	}
 	switch msg {
 	case wmMouseMove:
+		setArrowCursor() // otherwise the last cursor (busy, resize arrows…) stays
 		x, y := screenPt()
 		d, i := menuHit(x, y)
 		if d >= 0 {
@@ -447,6 +449,7 @@ func menuProc(h, msg, wp, lp uintptr) uintptr {
 		x, y := screenPt()
 		if d, _ := menuHit(x, y); d < 0 {
 			menuDone = true // click outside cancels
+			menuEatUp = true
 		}
 		return 0
 	case WM_LBUTTONUP, WM_RBUTTONUP:
@@ -460,7 +463,9 @@ func menuProc(h, msg, wp, lp uintptr) uintptr {
 		if d, _ := menuHit(pt.X, pt.Y); d >= 0 {
 			lv := menuStack[d]
 			viewH := lv.rect.Bottom - lv.rect.Top
-			lv.scroll -= hiword(wp) / 120 * menuRowH() * 3
+			menuWheelAcc += hiword(wp) * menuRowH() * 3
+			lv.scroll -= menuWheelAcc / 120
+			menuWheelAcc %= 120
 			lv.scroll = max32(0, min32(lv.scroll, lv.contentH-viewH))
 			closeMenuLevelsAbove(d)
 			invalidate(lv.hwnd)
@@ -796,3 +801,20 @@ func showMenuTip() {
 		return
 	}
 }
+
+// setArrowCursor shows the normal pointer. Menus hold the mouse capture, so
+// they must set it themselves.
+func setArrowCursor() {
+	if arrowCursor == 0 {
+		arrowCursor, _, _ = pLoadCursorW.Call(0, IDC_ARROW)
+	}
+	pSetCursorProc(arrowCursor)
+}
+
+var arrowCursor uintptr
+
+// menuEatUp: a menu was closed by clicking outside it; the button-up of that
+// click must not also count as a click on the overlay. GUI thread only.
+var menuEatUp bool
+
+var menuWheelAcc int32 // menu wheel movement not yet turned into pixels

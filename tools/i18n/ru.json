@@ -251,5 +251,15 @@
  "WoW folder": "Папка WoW",
  "Never translate these names or words": "Никогда не переводить эти имена и слова",
  "e.g. your guild name, nicknames": "например, название гильдии, прозвища",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Имена и слова, которые Parley оставляет как есть — в сообщениях и в ваших ответах: название гильдии, прозвища, свои шутки. Разделяйте запятыми."
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Имена и слова, которые Parley оставляет как есть — в сообщениях и в ваших ответах: название гильдии, прозвища, свои шутки. Разделяйте запятыми.",
+ "Check replies by translating them back": "Проверять ответы обратным переводом",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "После перевода вашего ответа Parley переводит его обратно на ваш язык и показывает под ответом, чтобы вы видели, что прочитает другой игрок. С DeepL или Azure это тратит немного больше символов.",
+ "Reads back the same.": "Обратный перевод совпадает.",
+ "Reads back as: %s": "Обратный перевод: %s",
+ "Conversation with %s": "Разговор с %s",
+ "click to show all messages": "нажмите, чтобы показать все сообщения",
+ "Show all messages": "Показать все сообщения",
+ "Leave the conversation view and show everything again.": "Выйти из режима разговора и снова показать всё.",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "Показывать только сообщения этого игрока и ваши ответы ему, как один разговор. Удобно для шёпота.",
+ "Showing one conversation. Click to see all messages again.": "Показан один разговор. Нажмите, чтобы снова видеть все сообщения."
 }

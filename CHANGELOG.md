@@ -1,5 +1,31 @@
 # Changelog
 
+## App 1.9.0 (2026-09-30)
+
+### Added
+- **Back-translation check.** Under each reply Parley shows it translated back into your language (*Reads back as: …*, or *Reads back the same.*), so you can see what the other player will read before you paste it. Tray → *Check replies by translating them back* (on by default; with DeepL or Azure it uses a few extra characters).
+- **Conversation view.** Right-click a message → *Conversation with …* shows only that player's messages and your replies to them, and sends your next reply to them. Click the bar at the top to see everything again.
+
+### Fixed
+- The mouse pointer over Parley's menus could stay a spinning "busy" or resize cursor.
+- WoW skins: "You → PT-BR" and other arrows showed as a gap (the WoW font has no arrow); they now show as "»".
+- Clicking the language or quick-reply button to close its menu opened it again straight away; clicking a message to close a menu also selected that message.
+- A stuck offline translator could freeze translation and stop Parley from quitting (which also broke one-click updates). Requests now time out, and quitting no longer waits for it. After repeated crashes the offline translator is tried again after two minutes instead of staying off until restart.
+- Settings could be lost if two saves happened at the same moment; a damaged settings file now falls back to the last good copy.
+- Your never-translate list now also applies to what you type in the reply box, and wins over place names inside it ("Ironforge Brewers" stays as written).
+- Finishing a reply no longer erases text you had started typing, e.g. under a quick reply.
+- The first message after a /reload in WoW could be skipped.
+- The tray icon comes back if Windows Explorer restarts.
+- Touchpads with smooth scrolling can scroll the overlay and menus.
+- The list no longer looks empty after clearing or muting while scrolled up.
+- Language downloads no longer fail on slow connections (the 5-minute limit is gone).
+- Installer: an update now replaces files as one unit (if anything fails, the previous version is put back and started again), and no console windows flash up.
+
+### Faster
+- The overlay no longer redraws every second when nothing changed, and remembers text sizes instead of measuring every message on every redraw.
+- Parley checks for WoW twice a second instead of 28 times while WoW isn't running or is minimized.
+- Busy chat is translated a few messages at a time, and messages that already scrolled out of the list are skipped (saving DeepL/Azure characters).
+
 ## App 1.8.0 (2026-09-30)
 
 ### Added

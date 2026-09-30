@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -26,14 +27,27 @@ type procEngine struct {
 	out    *bufio.Reader
 	nextID int
 	fails  int
+	failAt time.Time // when fails last went up
 	last   time.Time
 	timer  *time.Timer
+
+	proc    atomic.Pointer[os.Process] // running engine, for Close without the lock
+	closing atomic.Bool
 }
 
 // idleAfter frees the engine's memory (about 200 MB per loaded language)
 // when nobody has written anything foreign for a while. It restarts in
 // well under a second on the next message.
 const idleAfter = 10 * time.Minute
+
+// callTimeout: a request that takes longer means the engine is stuck; it is
+// killed and restarted. (Loading a language takes a few seconds at most.)
+var callTimeout = 60 * time.Second
+
+func (e *procEngine) failed() {
+	e.fails++
+	e.failAt = time.Now()
+}
 
 // engineExe finds parley-mt.exe next to Parley.exe.
 func engineExe() string { return helperExe("parley-mt.exe") }
@@ -57,6 +71,12 @@ func (e *procEngine) start() error {
 	if e.cmd != nil {
 		return nil
 	}
+	if e.closing.Load() {
+		return errors.New("Parley is closing")
+	}
+	if e.fails >= 5 && time.Since(e.failAt) > 2*time.Minute {
+		e.fails = 0 // try again after a pause
+	}
 	if e.fails >= 5 {
 		return errors.New("the offline translator keeps crashing; see Parley's voice/engine log")
 	}
@@ -71,10 +91,11 @@ func (e *procEngine) start() error {
 		return err
 	}
 	if err := cmd.Start(); err != nil {
-		e.fails++
+		e.failed()
 		return fmt.Errorf("couldn't start the offline translator: %v", err)
 	}
 	e.cmd, e.in, e.out = cmd, in, bufio.NewReaderSize(outPipe, 64<<10)
+	e.proc.Store(cmd.Process)
 	ready := make(chan error, 1)
 	go func() {
 		line, err := e.out.ReadString('\n')
@@ -90,7 +111,7 @@ func (e *procEngine) start() error {
 	}
 	if err != nil {
 		e.stopLocked()
-		e.fails++
+		e.failed()
 		return fmt.Errorf("the offline translator didn't start: %v", err)
 	}
 	return nil
@@ -106,10 +127,17 @@ func (e *procEngine) stopLocked() {
 	}
 	e.cmd.Wait()
 	e.cmd, e.in, e.out = nil, nil, nil
+	e.proc.Store(nil)
 }
 
 func (e *procEngine) Close() {
-	e.mu.Lock()
+	e.closing.Store(true)
+	if !e.mu.TryLock() { // a request is running: don't wait for it
+		if p := e.proc.Load(); p != nil {
+			p.Kill()
+		}
+		e.mu.Lock()
+	}
 	defer e.mu.Unlock()
 	if e.cmd != nil {
 		io.WriteString(e.in, "Q\n")
@@ -133,14 +161,25 @@ func (e *procEngine) call(header string, payload string) (string, error) {
 		if _, err := io.WriteString(e.in, req); err != nil {
 			lastErr = err
 			e.stopLocked()
-			e.fails++
+			e.failed()
 			continue
 		}
+		var watchdog *time.Timer
+		var stuck atomic.Bool
+		if p := e.proc.Load(); p != nil {
+			watchdog = time.AfterFunc(callTimeout, func() { stuck.Store(true); p.Kill() })
+		}
 		status, body, err := e.readReply(id)
+		if watchdog != nil {
+			watchdog.Stop()
+		}
 		if err != nil {
 			lastErr = err
 			e.stopLocked()
-			e.fails++
+			e.failed()
+			if stuck.Load() { // the same request would just hang again
+				return "", errors.New("the offline translator got stuck on this message")
+			}
 			continue
 		}
 		e.fails = 0

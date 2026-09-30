@@ -3,6 +3,7 @@ package main
 // Minimal Win32 bindings (standard library only, no cgo).
 
 import (
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -426,10 +427,37 @@ func newFont(px int, weight int, face string) uintptr {
 }
 
 func drawText(hdc uintptr, s string, r *RECT, flags uintptr) int32 {
+	if strings.ContainsRune(s, '→') && !hasGlyph(hdc, '→') {
+		s = strings.ReplaceAll(s, "→", "»") // Friz Quadrata (the WoW skins) has no arrow
+	}
 	p, _ := syscall.UTF16FromString(s)
 	h, _, _ := pDrawTextW.Call(hdc, uintptr(unsafe.Pointer(&p[0])), uintptr(len(p)-1),
 		uintptr(unsafe.Pointer(r)), flags)
 	return int32(h)
+}
+
+var (
+	pGetGlyphIndicesW = gdi32.NewProc("GetGlyphIndicesW")
+	glyphCache        = map[string]bool{}
+)
+
+// hasGlyph reports whether the font selected into hdc can draw r (cached per font).
+func hasGlyph(hdc uintptr, r rune) bool {
+	var face [64]uint16 // key on the face name: font handles get reused
+	n, _, _ := pGetTextFaceW.Call(hdc, uintptr(len(face)), uintptr(unsafe.Pointer(&face[0])))
+	if int(n) > len(face) {
+		n = uintptr(len(face))
+	}
+	k := syscall.UTF16ToString(face[:n]) + string(r)
+	if v, ok := glyphCache[k]; ok {
+		return v
+	}
+	in := []uint16{uint16(r)}
+	out := []uint16{0}
+	pGetGlyphIndicesW.Call(hdc, uintptr(unsafe.Pointer(&in[0])), 1, uintptr(unsafe.Pointer(&out[0])), 1 /*GGI_MARK_NONEXISTING_GLYPHS*/)
+	ok := out[0] != 0xFFFF
+	glyphCache[k] = ok
+	return ok
 }
 
 func fillRect(hdc uintptr, r RECT, color uintptr) {

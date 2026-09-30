@@ -131,6 +131,12 @@ func messageMenu(e *Entry) {
 		items = append(items, MenuItem{Label: T("Copy translation"), ID: cmdMsgCopy})
 	}
 	items = append(items, MenuItem{Label: T("Copy original"), ID: cmdMsgCopyOrig})
+	if threadWith != "" {
+		items = append(items, MenuItem{Label: T("Show all messages"), ID: cmdMsgAll, Tip: T("Leave the conversation view and show everything again.")})
+	} else if e.Msg.Sender != "" {
+		items = append(items, MenuItem{Label: Tf("Conversation with %s", name), ID: cmdMsgThread,
+			Tip: T("Show only this player's messages and your replies to them, as one conversation. Handy for whispers.")})
+	}
 	if !e.Own {
 		items = append(items, MenuItem{Label: Tf("Reply to %s", name), ID: cmdMsgReply, Tip: T("Your next reply goes to this player, in their language.")})
 		if e.Msg.Sender != "" {
@@ -149,16 +155,21 @@ func messageMenu(e *Entry) {
 			app.setNotice(T("Original copied."))
 		}
 	case cmdMsgReply:
-		app.mu.Lock()
-		selected := app.reply.set() && app.reply.Sender == e.Msg.Sender && app.reply.Type == e.Msg.Type &&
-			app.reply.ChanNum == e.Msg.ChanNum
-		app.mu.Unlock()
-		if !selected {
+		if !app.replyingTo(e) {
 			app.pickReply(e)
 		}
 		showOverlay(true, true)
 	case cmdMsgMute:
+		if strings.EqualFold(threadWith, e.Msg.Sender) {
+			threadWith = ""
+		}
 		app.mute(e.Msg.Sender)
+	case cmdMsgThread:
+		showThread(e)
+	case cmdMsgAll:
+		threadWith = ""
+		scrollPx = 0
+		invalidate(app.overlay)
 	}
 }
 
@@ -230,3 +241,32 @@ func (a *App) logHistory(e *Entry) {
 }
 
 func oneLine(s string) string { return strings.Join(strings.Fields(s), " ") }
+
+// threadWith is the player whose conversation the overlay is showing ("" =
+// everything). GUI thread only.
+var threadWith string
+
+// showThread switches the overlay to one player's conversation and makes
+// your next reply go to them.
+func showThread(e *Entry) {
+	threadWith = e.Msg.Sender
+	scrollPx = 0
+	if !e.Own {
+		if !app.replyingTo(e) {
+			app.pickReply(e)
+		}
+	}
+	invalidate(app.overlay)
+}
+
+// inThread reports whether an entry belongs to the conversation being shown.
+func inThread(e *Entry) bool {
+	return threadWith == "" || strings.EqualFold(e.Msg.Sender, threadWith)
+}
+
+// replyingTo reports whether replies already go to this message's sender and chat.
+func (a *App) replyingTo(e *Entry) bool {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.reply.set() && a.reply.Sender == e.Msg.Sender && a.reply.Type == e.Msg.Type && a.reply.ChanNum == e.Msg.ChanNum
+}

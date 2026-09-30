@@ -251,5 +251,15 @@
  "WoW folder": "Carpeta de WoW",
  "Never translate these names or words": "No traducir nunca estos nombres o palabras",
  "e.g. your guild name, nicknames": "p. ej. el nombre de tu hermandad, apodos",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Nombres y palabras que Parley deja tal cual, en los mensajes y en tus respuestas: el nombre de tu hermandad, apodos, bromas internas. Sepáralos con comas."
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Nombres y palabras que Parley deja tal cual, en los mensajes y en tus respuestas: el nombre de tu hermandad, apodos, bromas internas. Sepáralos con comas.",
+ "Check replies by translating them back": "Comprobar respuestas traduciéndolas de vuelta",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "Después de traducir tu respuesta, Parley la traduce de vuelta a tu idioma y lo muestra debajo, para que veas lo que leerá el otro jugador. Con DeepL o Azure usa algunos caracteres más.",
+ "Reads back the same.": "La traducción de vuelta coincide.",
+ "Reads back as: %s": "De vuelta dice: %s",
+ "Conversation with %s": "Conversación con %s",
+ "click to show all messages": "clic para ver todos los mensajes",
+ "Show all messages": "Mostrar todos los mensajes",
+ "Leave the conversation view and show everything again.": "Salir de la vista de conversación y volver a mostrar todo.",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "Mostrar solo los mensajes de este jugador y tus respuestas, como una conversación. Útil para susurros.",
+ "Showing one conversation. Click to see all messages again.": "Mostrando una conversación. Haz clic para ver todos los mensajes."
 }

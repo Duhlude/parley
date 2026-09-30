@@ -57,7 +57,11 @@ func azCode(code string) string {
 }
 
 // Azure's HTML mode skips anything marked translate="no".
-var azNoTagRe = regexp.MustCompile(`</?span[^>]*>`)
+var (
+	azNoTagRe      = regexp.MustCompile(`</?span[^>]*>`)
+	azGlueBeforeRe = regexp.MustCompile(`([\p{L}\p{N}])<span`)
+	azGlueAfterRe  = regexp.MustCompile(`</span>([\p{L}\p{N}])`)
+)
 
 func toAzureHTML(s, target string) string {
 	esc := html.EscapeString(keepRe.ReplaceAllString(s, "$1"))
@@ -71,8 +75,8 @@ func toAzureHTML(s, target string) string {
 }
 
 func fromAzureHTML(s string) string {
-	s = regexp.MustCompile(`([\p{L}\p{N}])<span`).ReplaceAllString(s, "$1 <span")
-	s = regexp.MustCompile(`</span>([\p{L}\p{N}])`).ReplaceAllString(s, "</span> $1")
+	s = azGlueBeforeRe.ReplaceAllString(s, "$1 <span")
+	s = azGlueAfterRe.ReplaceAllString(s, "</span> $1")
 	return strings.TrimSpace(html.UnescapeString(azNoTagRe.ReplaceAllString(s, "")))
 }
 

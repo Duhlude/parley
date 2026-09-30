@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // When PARLEY_FAKE_MT is set, the test binary acts as parley-mt.exe.
@@ -41,6 +42,8 @@ func fakeMT() {
 			out = "pt 97 un 0 un 0 1"
 		case text == "crash":
 			os.Exit(3)
+		case text == "hang":
+			select {} // stuck engine
 		case text == "fail":
 			status, out = "ERR", "model files missing"
 		default:
@@ -84,5 +87,35 @@ MUNDO ÇÃO` {
 	}
 	if _, err := e.Translate("x", true, "a\tb", ""); err == nil {
 		t.Error("tab in model path must be rejected")
+	}
+}
+
+func TestProcEngineHang(t *testing.T) {
+	exe, _ := os.Executable()
+	t.Setenv("PARLEY_FAKE_MT", "1")
+	old := callTimeout
+	callTimeout = 300 * time.Millisecond
+	defer func() { callTimeout = old }()
+	e := &procEngine{Path: exe}
+	start := time.Now()
+	if _, err := e.Translate("hang", false, "pt", "en"); err == nil {
+		t.Fatal("a stuck engine should give an error")
+	}
+	if time.Since(start) > 5*time.Second {
+		t.Fatalf("took %v", time.Since(start))
+	}
+	// still usable afterwards
+	if out, err := e.Translate("oi", false, "pt", "en"); err != nil || !strings.Contains(out, "OI") {
+		t.Fatalf("after hang: %q %v", out, err)
+	}
+	// Close doesn't wait for a stuck request
+	go e.Translate("hang", false, "pt", "en")
+	time.Sleep(200 * time.Millisecond)
+	done := make(chan bool)
+	go func() { e.Close(); done <- true }()
+	select {
+	case <-done:
+	case <-time.After(3 * time.Second):
+		t.Fatal("Close blocked on a stuck request")
 	}
 }

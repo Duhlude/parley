@@ -251,5 +251,15 @@
  "WoW folder": "WoW 文件夹",
  "Never translate these names or words": "永不翻译这些名字或词语",
  "e.g. your guild name, nicknames": "例如：公会名、昵称",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Parley 在消息和你的回复中都会原样保留的名字和词语：公会名、昵称、圈内梗等。用逗号分隔。"
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Parley 在消息和你的回复中都会原样保留的名字和词语：公会名、昵称、圈内梗等。用逗号分隔。",
+ "Check replies by translating them back": "通过回译检查回复",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "Parley 翻译你的回复后，会再把它译回你的语言并显示在回复下方，让你看到对方会读到什么。使用 DeepL 或 Azure 时会多用一些字符。",
+ "Reads back the same.": "回译结果一致。",
+ "Reads back as: %s": "回译：%s",
+ "Conversation with %s": "与 %s 的对话",
+ "click to show all messages": "点击显示全部消息",
+ "Show all messages": "显示全部消息",
+ "Leave the conversation view and show everything again.": "退出对话视图，重新显示全部内容。",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "只显示这位玩家的消息和你给他的回复，合成一段对话。适合密语。",
+ "Showing one conversation. Click to see all messages again.": "正在显示一段对话。点击重新查看全部消息。"
 }

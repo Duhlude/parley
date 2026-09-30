@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"parley/addon"
@@ -34,6 +35,7 @@ type Config struct {
 	AzureRegion  string   `json:"azureRegion,omitempty"`
 	AlertWords   string   `json:"alertWords,omitempty"`  // comma-separated; the character name is added automatically
 	KeepWords    string   `json:"keepWords,omitempty"`   // comma-separated names and terms never translated
+	BackCheck    string   `json:"backCheck,omitempty"`   // ""/on, "off": translate replies back to check them
 	AlertSound   string   `json:"alertSound,omitempty"`  // ""/on, "off"
 	CharName     string   `json:"charName,omitempty"`    // last character the addon reported
 	UpdateCheck  string   `json:"updateCheck,omitempty"` // ""/on, "off"
@@ -65,9 +67,14 @@ func configDir() string {
 func loadConfig() Config {
 	c := defaultConfig()
 	b, err := os.ReadFile(filepath.Join(configDir(), "settings.json"))
-	if err == nil {
-		json.Unmarshal(b, &c)
-	} else {
+	if err == nil && json.Unmarshal(b, &c) != nil {
+		// damaged file: fall back to the copy of the last good one
+		c = defaultConfig()
+		if b2, err2 := os.ReadFile(filepath.Join(configDir(), "settings.json.bak")); err2 == nil {
+			json.Unmarshal(b2, &c)
+		}
+	}
+	if err != nil {
 		// first run: read chat in the Windows language
 		c.MyLang = chatLangForLocale(systemLocaleName())
 	}
@@ -83,16 +90,50 @@ func loadConfig() Config {
 	return c
 }
 
+// configMu serializes saves: the GUI, the capture goroutine (character
+// name) and the addon installer can all save at once.
+var configMu sync.Mutex
+
+// liveConfig, when set (the running app), returns the current settings. Saves
+// always write that, so two saves racing can't leave an older copy on disk.
+var liveConfig func() Config
+
 func saveConfig(c Config) error {
-	if err := os.MkdirAll(configDir(), 0o755); err != nil {
+	configMu.Lock()
+	defer configMu.Unlock()
+	if liveConfig != nil {
+		c = liveConfig()
+	}
+	dir := configDir()
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	b, _ := json.MarshalIndent(c, "", "  ")
-	tmp := filepath.Join(configDir(), "settings.json.tmp")
-	if err := os.WriteFile(tmp, b, 0o600); err != nil {
+	b, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
 		return err
 	}
-	return os.Rename(tmp, filepath.Join(configDir(), "settings.json"))
+	f, err := os.CreateTemp(dir, "settings-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmp := f.Name()
+	_, werr := f.Write(b)
+	if cerr := f.Close(); werr == nil {
+		werr = cerr
+	}
+	if werr != nil {
+		os.Remove(tmp)
+		return werr
+	}
+	path := filepath.Join(dir, "settings.json")
+	if old, err := os.ReadFile(path); err == nil && json.Valid(old) {
+		os.WriteFile(filepath.Join(dir, "settings.json.bak"), old, 0o600) // last good copy
+	}
+	if err := os.Rename(tmp, path); err != nil {
+		os.Remove(tmp)
+		return err
+	}
+	return nil
 }
 
 var addonFS = addon.FS

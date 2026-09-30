@@ -164,3 +164,8 @@ func fletcher(d []byte) (int, int) {
 	}
 	return a, b
 }
+
+// sameChat reports whether two decoded frames carry the same message.
+func sameChat(a, b ChatMessage) bool {
+	return a.Type == b.Type && a.ChanNum == b.ChanNum && a.ChanName == b.ChanName && a.Sender == b.Sender && a.Text == b.Text
+}

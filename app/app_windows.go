@@ -38,7 +38,8 @@ type Entry struct {
 	Detected   string
 	Err        string
 	At         time.Time
-	Alert      bool // mentions your character or one of your alert words
+	Alert      bool   // mentions your character or one of your alert words
+	Back       string // own replies: the translation translated back, to check it
 }
 
 type ReplyTarget struct {
@@ -70,6 +71,7 @@ type App struct {
 
 	replyResult struct {
 		text, clip string
+		sent       string // what was in the reply box, to clear only that
 		err        error
 	}
 
@@ -120,6 +122,11 @@ func main() {
 	}
 
 	app.cfg = loadConfig()
+	liveConfig = func() Config {
+		app.mu.Lock()
+		defer app.mu.Unlock()
+		return app.cfg
+	}
 	setKeepWords(app.cfg.KeepWords)
 	setUILang(app.cfg.UILang)
 	app.key = string(unprotect(app.cfg.DeepLKeyEnc))
@@ -139,6 +146,7 @@ func main() {
 
 	if updated {
 		app.setNotice(Tf("Parley was updated to version %s.", appVersion))
+		go cleanUpdateLeftovers()
 	}
 	go autoInstall()
 	go captureLoop()
@@ -272,7 +280,9 @@ func (a *App) setNotice(s string) {
 // ---------------------------------------------------------------------------
 
 func autoInstall() {
+	app.mu.Lock()
 	cfg := app.cfg
+	app.mu.Unlock()
 	if _, err := os.Stat(cfg.WowPath); err != nil {
 		found := ""
 		for _, w := range wowFolders() {
@@ -386,12 +396,16 @@ func captureLoop() {
 		seenAny   bool
 		badFrames int
 		lastGood  time.Time
+		lastMsg   ChatMessage
 	)
+	nap := 35 * time.Millisecond
 	for {
-		time.Sleep(35 * time.Millisecond)
+		time.Sleep(nap)
+		nap = 35 * time.Millisecond // about 28 looks a second while WoW is up
 		wow := app.wow.Load()
 		if wow == 0 || !isWin(wow) {
 			app.wow.Store(0)
+			nap = 500 * time.Millisecond // no WoW: just look for it now and then
 			if time.Since(lastFind) < 2*time.Second {
 				continue
 			}
@@ -401,9 +415,11 @@ func captureLoop() {
 				continue
 			}
 			app.wow.Store(wow)
+			nap = 35 * time.Millisecond
 		}
 		if ic, _, _ := pIsIconic.Call(wow); ic != 0 {
 			app.setStatus(T("WoW minimized"), statusIdle)
+			nap = 250 * time.Millisecond
 			continue
 		}
 		var o POINT
@@ -433,12 +449,16 @@ func captureLoop() {
 			continue
 		}
 		badFrames = 0
+		paused := time.Since(lastGood) > 2*time.Second
 		seenAny, lastGood = true, time.Now()
 		app.setStatus(T("Live"), statusLive)
-		if m.Seq == lastSeq {
+		// The addon keeps showing a message for a while, so the same frame is
+		// read many times. After a pause (a /reload in WoW restarts the count)
+		// a repeated number only counts as new if the message itself differs.
+		if m.Seq == lastSeq && (!paused || sameChat(m, lastMsg)) {
 			continue
 		}
-		lastSeq = m.Seq
+		lastSeq, lastMsg = m.Seq, m
 		app.incoming(m)
 	}
 }
@@ -492,6 +512,11 @@ func (a *App) incoming(m ChatMessage) {
 	a.refresh()
 
 	go func() {
+		translateSlots <- struct{}{} // a few at a time, roughly in arrival order
+		defer func() { <-translateSlots }()
+		if !a.listed(e) { // scrolled out of the list while waiting: don't spend characters on it
+			return
+		}
 		src := ExpandSlang(m.Text)
 		if myBase != "EN" { // spell out English chat shortcuts for non-English readers
 			src = expandShortcuts(src)
@@ -531,6 +556,22 @@ func (a *App) incoming(m ChatMessage) {
 			a.logHistory(e)
 		}
 	}()
+}
+
+// translateSlots limits how many incoming messages translate at once, so a
+// busy Trade chat queues up instead of piling onto the engines.
+var translateSlots = make(chan struct{}, 3)
+
+// listed reports whether e is still in the message list.
+func (a *App) listed(e *Entry) bool {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	for i := len(a.entries) - 1; i >= 0; i-- {
+		if a.entries[i] == e {
+			return true
+		}
+	}
+	return false
 }
 
 // Reply model: the person/channel you reply to is only ever chosen by
@@ -690,17 +731,40 @@ func (a *App) sendReply(text string) {
 			src = expandShortcuts(src)
 			src = localizeRoleVerbs(src, r.Lang)
 		}
-		src = localizePlaces(src, r.Lang)
+		src = localizePlaces(lockUserWords(src), r.Lang)
 		tr, err := a.translate(key, src, baseLang(myLang), r.Lang)
-		a.deliverReply(r, text, tr.Text, err)
+		if own := a.deliverReply(r, text, tr.Text, err); own != nil {
+			a.backCheck(own, key, r.Lang, myLang)
+		}
 	}()
+}
+
+// backCheck translates a finished reply back into your language, so you can
+// see what it will say before you paste it. Runs on the reply's goroutine.
+func (a *App) backCheck(own *Entry, key, from, to string) {
+	a.mu.Lock()
+	on := a.cfg.BackCheck != "off"
+	text := own.Translated
+	a.mu.Unlock()
+	if !on || text == "" {
+		return
+	}
+	tr, err := a.translate(key, prepareIncoming(text, to), baseLang(from), to)
+	if err != nil || strings.TrimSpace(tr.Text) == "" {
+		return
+	}
+	a.mu.Lock()
+	own.Back = strings.TrimSpace(tr.Text)
+	a.mu.Unlock()
+	a.refresh()
 }
 
 // deliverReply stores a finished reply (or its error) and lets the GUI
 // thread copy it (finishReply). Safe from any goroutine.
-func (a *App) deliverReply(r ReplyTarget, original, translated string, err error) {
+func (a *App) deliverReply(r ReplyTarget, original, translated string, err error) *Entry {
 	a.mu.Lock()
 	a.replyResult.err = err
+	a.replyResult.sent = original
 	var own *Entry
 	if err == nil {
 		a.replyResult.text = translated
@@ -714,13 +778,14 @@ func (a *App) deliverReply(r ReplyTarget, original, translated string, err error
 		a.logHistory(own)
 	}
 	pPostMessageW.Call(a.overlay, msgReply, 0, 0)
+	return own
 }
 
 // sendPhrase sends a quick reply: the built-in translation when the
 // phrasebook has the reply language, otherwise through the engine.
 func (a *App) sendPhrase(p phrase) {
 	a.mu.Lock()
-	r, key := a.reply, a.key
+	r, key, myLang := a.reply, a.key, a.cfg.MyLang
 	a.mu.Unlock()
 	if r.Lang == "" {
 		a.setNotice(T("Pick a reply language first: click a message, or the language button."))
@@ -733,7 +798,9 @@ func (a *App) sendPhrase(p phrase) {
 	a.setNotice(T("Translating…"))
 	go func() {
 		tr, err := a.translate(key, p.EN, "EN", r.Lang)
-		a.deliverReply(r, p.EN, tr.Text, err)
+		if own := a.deliverReply(r, p.EN, tr.Text, err); own != nil {
+			a.backCheck(own, key, r.Lang, myLang)
+		}
 	}()
 }
 
@@ -747,7 +814,9 @@ func (a *App) finishReply() {
 		a.setNotice(Tf("Reply not translated: %s", localizeMsg(res.err.Error())))
 		return
 	}
-	setText(overlayEdit, "")
+	if strings.TrimSpace(getText(overlayEdit)) == strings.TrimSpace(res.sent) {
+		setText(overlayEdit, "") // keep anything typed since, or a draft under a quick reply
+	}
 	if !setClipboard(a.overlay, res.clip) {
 		a.setNotice(T("Couldn't reach the clipboard, try again."))
 		return
@@ -803,6 +872,7 @@ const (
 	cmdClickThrough  = 506
 	cmdEngAzure      = 507
 	cmdAlertSound    = 508
+	cmdBackCheck     = 511
 	cmdUpdateCheck   = 509
 	cmdUpdateGet     = 510
 	cmdAutoHide0     = 520 // + index in autoHideChoices
@@ -811,6 +881,8 @@ const (
 	cmdMsgCopyOrig   = 801
 	cmdMsgMute       = 802
 	cmdMsgReply      = 803
+	cmdMsgThread     = 804
+	cmdMsgAll        = 805
 )
 
 func trayMenu() {
@@ -857,6 +929,8 @@ func trayMenu() {
 		{Sep: true},
 		{Label: T("Click-through overlay"), ID: cmdClickThrough, Checked: app.cfg.ClickThrough,
 			Tip: T("Mouse clicks go through the overlay to WoW, so you can't hit it by accident. Ctrl+Shift+T to use it, Esc to go back.")},
+		{Label: T("Check replies by translating them back"), ID: cmdBackCheck, Checked: app.cfg.BackCheck != "off",
+			Tip: T("After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.")},
 		{Label: T("Alert sound"), ID: cmdAlertSound, Checked: app.cfg.AlertSound != "off",
 			Tip: T("Play a soft sound when a message mentions your character or one of your alert words (Settings).")},
 		{Label: T("Check for updates"), ID: cmdUpdateCheck, Checked: app.cfg.UpdateCheck != "off",
@@ -869,14 +943,17 @@ func trayMenu() {
 	if n := len(app.cfg.Muted); n > 0 {
 		items = append(items, MenuItem{Label: Tf("Unmute everyone (%d muted)", n), ID: cmdUnmuteAll, Tip: T("Show messages from everyone you muted again.")})
 	}
-	if app.update.Version != "" {
-		up := MenuItem{Label: Tf("Download Parley %s", app.update.Version), ID: cmdUpdateGet, Tip: T("Opens the download page for the new version.")}
-		if canSelfUpdate(app.update) {
-			up = MenuItem{Label: Tf("Update to Parley %s", app.update.Version), ID: cmdUpdateGet,
+	app.mu.Lock()
+	upd := app.update
+	app.mu.Unlock()
+	if upd.Version != "" {
+		up := MenuItem{Label: Tf("Download Parley %s", upd.Version), ID: cmdUpdateGet, Tip: T("Opens the download page for the new version.")}
+		if canSelfUpdate(upd) {
+			up = MenuItem{Label: Tf("Update to Parley %s", upd.Version), ID: cmdUpdateGet,
 				Tip: T("Downloads and installs the new version, then restarts Parley. Your settings are kept.")}
 		}
 		if updating.Load() {
-			up = MenuItem{Label: Tf("Updating to Parley %s…", app.update.Version), Disabled: true}
+			up = MenuItem{Label: Tf("Updating to Parley %s…", upd.Version), Disabled: true}
 		}
 		items = append([]MenuItem{items[0], up, {Sep: true}}, items[1:]...)
 	}
@@ -913,11 +990,13 @@ func runCommand(cmd int) {
 			app.setNotice(T("Azure needs a key (Settings). Until then Parley translates offline."))
 		}
 		app.refresh()
-	case cmdAlertSound, cmdUpdateCheck:
+	case cmdAlertSound, cmdUpdateCheck, cmdBackCheck:
 		app.mu.Lock()
 		p := &app.cfg.AlertSound
 		if cmd == cmdUpdateCheck {
 			p = &app.cfg.UpdateCheck
+		} else if cmd == cmdBackCheck {
+			p = &app.cfg.BackCheck
 		}
 		if *p == "off" {
 			*p = ""
@@ -996,7 +1075,10 @@ func runCommand(cmd int) {
 	case cmdSettings:
 		openSettings()
 	case cmdInstall:
-		dests, err := installAddonAll(app.cfg.WowPath)
+		app.mu.Lock()
+		wowPath := app.cfg.WowPath
+		app.mu.Unlock()
+		dests, err := installAddonAll(wowPath)
 		if err != nil {
 			skinAlert(app.overlay, T("Couldn't install the addon"), localizeMsg(err.Error()))
 		} else {
@@ -1006,6 +1088,7 @@ func runCommand(cmd int) {
 		app.mu.Lock()
 		app.entries = nil
 		app.mu.Unlock()
+		threadWith = ""
 		app.refresh()
 	case cmdQuit:
 		saveOverlayPos()

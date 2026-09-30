@@ -330,6 +330,25 @@ func localizePlaces(text, target string) string {
 	if len(hits) == 0 {
 		return text
 	}
+	// Never touch the player's own never-translate words.
+	if locked := lockRe.FindAllStringIndex(text, -1); len(locked) > 0 {
+		kept := hits[:0]
+		for _, h := range hits {
+			inside := false
+			for _, l := range locked {
+				if h.start < l[1] && h.end > l[0] {
+					inside = true
+					break
+				}
+			}
+			if !inside {
+				kept = append(kept, h)
+			}
+		}
+		if hits = kept; len(hits) == 0 {
+			return text
+		}
+	}
 	// Leftmost first; at the same spot the longest spelling wins.
 	sort.SliceStable(hits, func(a, b int) bool {
 		if hits[a].start != hits[b].start {
@@ -466,9 +485,23 @@ func localizeRoleVerbs(text, target string) string {
 // prepareIncoming and prepareReply are the text fixes run before either
 // engine sees a message.
 func prepareIncoming(text, target string) string {
-	return lockUserWords(localizePlaces(text, target))
+	return localizePlaces(lockUserWords(text), target)
 }
 
 func prepareReply(text, target string) string { // text is English
-	return lockUserWords(localizePlaces(localizeRoleVerbs(text, target), target))
+	return localizePlaces(lockUserWords(localizeRoleVerbs(text, target)), target)
+}
+
+// sameMeaning: the back-translation matches what you typed, ignoring case,
+// spaces and punctuation.
+func sameMeaning(a, b string) bool {
+	norm := func(s string) string {
+		return strings.Map(func(r rune) rune {
+			if unicode.IsLetter(r) || unicode.IsDigit(r) {
+				return unicode.ToLower(r)
+			}
+			return -1
+		}, s)
+	}
+	return norm(a) == norm(b)
 }

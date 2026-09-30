@@ -87,9 +87,17 @@ func NewOffline(dir string, engine mtEngine) *Offline {
 	}
 	return &Offline{
 		Dir: dir, Settings: settings, Engine: engine,
-		HTTP:     &http.Client{Timeout: 5 * time.Minute},
+		HTTP:     downloadClient(),
 		pairLock: map[string]*sync.Mutex{}, cache: map[string]Translation{},
 	}
+}
+
+// downloadClient gives up quickly when a server doesn't answer, but lets a
+// big model download take its time on a slow connection.
+func downloadClient() *http.Client {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.ResponseHeaderTimeout = 30 * time.Second
+	return &http.Client{Transport: t, Timeout: 45 * time.Minute}
 }
 
 // ---------------------------------------------------------------------------

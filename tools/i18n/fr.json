@@ -251,5 +251,15 @@
  "WoW folder": "Dossier de WoW",
  "Never translate these names or words": "Ne jamais traduire ces noms ou mots",
  "e.g. your guild name, nicknames": "ex. le nom de ta guilde, des surnoms",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Noms et mots que Parley laisse tels quels, dans les messages et dans tes réponses : le nom de ta guilde, des surnoms, des blagues entre vous. Sépare-les par des virgules."
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Noms et mots que Parley laisse tels quels, dans les messages et dans tes réponses : le nom de ta guilde, des surnoms, des blagues entre vous. Sépare-les par des virgules.",
+ "Check replies by translating them back": "Vérifier les réponses en les retraduisant",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "Après avoir traduit ta réponse, Parley la retraduit dans ta langue et l'affiche dessous, pour que tu voies ce que l'autre joueur lira. Avec DeepL ou Azure, cela utilise quelques caractères de plus.",
+ "Reads back the same.": "La retraduction correspond.",
+ "Reads back as: %s": "Retraduit : %s",
+ "Conversation with %s": "Conversation avec %s",
+ "click to show all messages": "cliquer pour voir tous les messages",
+ "Show all messages": "Afficher tous les messages",
+ "Leave the conversation view and show everything again.": "Quitter la vue conversation et tout afficher de nouveau.",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "N'afficher que les messages de ce joueur et tes réponses, comme une conversation. Pratique pour les chuchotements.",
+ "Showing one conversation. Click to see all messages again.": "Une conversation est affichée. Clique pour revoir tous les messages."
 }

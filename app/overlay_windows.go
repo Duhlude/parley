@@ -47,6 +47,7 @@ var (
 	micRect       RECT
 	qrRect        RECT // quick replies
 	toClearRect   RECT
+	threadRect    RECT // "Conversation with …" bar; click to show everything
 	hoverBtn      int
 	trackingMouse bool
 )
@@ -103,6 +104,7 @@ func applyOpacity() {
 
 func updateDPI() {
 	curDPI = dpiOf(app.overlay)
+	overlayFontGen++ // text measured with the old fonts is stale
 	for _, f := range []uintptr{fBody, fSmall, fBold, fBoldAlt, fBodyAlt, fSmallAlt, fTitle, fIcon} {
 		if f != 0 {
 			pDeleteObject.Call(f)
@@ -201,7 +203,29 @@ func inRect(r RECT, x, y int32) bool {
 	return x >= r.Left && x < r.Right && y >= r.Top && y < r.Bottom
 }
 
+var (
+	pRegisterWindowMessageW = user32.NewProc("RegisterWindowMessageW")
+	// Explorer broadcasts this after it restarts; the tray icon must be added again.
+	msgTaskbarCreated = func() uintptr {
+		m, _, _ := pRegisterWindowMessageW.Call(uintptr(unsafe.Pointer(u16("TaskbarCreated"))))
+		return m
+	}()
+)
+
 func overlayProc(h, msg, wp, lp uintptr) uintptr {
+	if msg == msgTaskbarCreated && msg != 0 {
+		addTray()
+		return 0
+	}
+	switch msg {
+	case WM_LBUTTONDOWN, 0x0204: // WM_RBUTTONDOWN: a new click on the overlay
+		menuEatUp = false
+	case WM_LBUTTONUP, WM_RBUTTONUP:
+		if menuEatUp { // the click that closed a menu isn't also a click here
+			menuEatUp = false
+			return 0
+		}
+	}
 	switch msg {
 	case WM_PAINT:
 		paintOverlay(h)
@@ -270,7 +294,7 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		pGetCursorPos.Call(uintptr(unsafe.Pointer(&pt)))
 		pScreenToClient.Call(h, uintptr(unsafe.Pointer(&pt)))
 		if loword(lp) == HTCLIENT && (inRect(btnSettings, pt.X, pt.Y) || inRect(btnClear, pt.X, pt.Y) ||
-			inRect(btnHide, pt.X, pt.Y) || inRect(chipRect, pt.X, pt.Y) || inRect(micRect, pt.X, pt.Y) || inRect(qrRect, pt.X, pt.Y) || inRect(toClearRect, pt.X, pt.Y) || entryAt(pt.X, pt.Y) != nil) {
+			inRect(btnHide, pt.X, pt.Y) || inRect(chipRect, pt.X, pt.Y) || inRect(threadRect, pt.X, pt.Y) || inRect(micRect, pt.X, pt.Y) || inRect(qrRect, pt.X, pt.Y) || inRect(toClearRect, pt.X, pt.Y) || entryAt(pt.X, pt.Y) != nil) {
 			c, _, _ := pLoadCursorW.Call(0, IDC_HAND)
 			pSetCursorProc(c)
 			return 1
@@ -293,6 +317,8 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 			hb = 6
 		case inRect(qrRect, x, y):
 			hb = 7
+		case inRect(threadRect, x, y):
+			hb = 8
 		}
 		if hb != hoverBtn {
 			hoverBtn = hb
@@ -329,6 +355,10 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		case inRect(toClearRect, x, y):
 			app.clearReply()
 			invalidate(h)
+		case inRect(threadRect, x, y):
+			threadWith = ""
+			scrollPx = 0
+			invalidate(h)
 		case inRect(micRect, x, y):
 			startVoice()
 		case inRect(qrRect, x, y):
@@ -336,7 +366,11 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 			invalidate(h)
 		default:
 			if e := entryAt(x, y); e != nil && !e.Own {
-				app.pickReply(e)
+				// In a conversation every message is from the same player, so a
+				// click there selects them but never turns replying off.
+				if threadWith == "" || !app.replyingTo(e) {
+					app.pickReply(e)
+				}
 				invalidate(h)
 			}
 		}
@@ -349,7 +383,9 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		return 0
 	case WM_MOUSEWHEEL:
 		delta := hiword(wp)
-		scrollPx += delta / 120 * sc(48)
+		wheelAcc += delta * sc(48) // touchpads send many small steps: keep the remainder
+		scrollPx += wheelAcc / 120
+		wheelAcc %= 120
 		if scrollPx < 0 {
 			scrollPx = 0
 		}
@@ -388,6 +424,9 @@ func overlayProc(h, msg, wp, lp uintptr) uintptr {
 		}
 		if wp == 1 {
 			autoHideTick()
+			if !noticeShown { // the 1 s tick only matters while a notice is up
+				return 0
+			}
 		}
 		if wp == voiceTimerID {
 			pKillTimer.Call(h, voiceTimerID)
@@ -494,9 +533,10 @@ func paintOverlay(h uintptr) {
 	if time.Since(app.noticeAt) > 15*time.Second {
 		notice = ""
 	}
+	noticeShown = notice != ""
 	entries := make([]*Entry, 0, len(app.entries))
 	for _, e := range app.entries {
-		if e.State != stateHidden {
+		if e.State != stateHidden && inThread(e) {
 			cp := *e // snapshot: translation goroutines update the originals
 			entries = append(entries, &cp)
 		}
@@ -677,6 +717,25 @@ func paintOverlay(h uintptr) {
 	// ---- messages ----
 	listTop := headH + sc(4)
 	listBottom := toTop - sc(4)
+	threadRect = RECT{}
+	if threadWith != "" { // conversation view: a bar that leads back to everything
+		barH := sc(26)
+		threadRect = RECT{0, headH, w, headH + barH}
+		fillRect(mem, threadRect, colHeader)
+		if hoverBtn == 8 {
+			fillRect(mem, RECT{0, headH, w, headH + barH}, colField)
+		}
+		label := Tf("Conversation with %s", shortName(threadWith)) + "  ·  " + T("click to show all messages")
+		pSelectObject.Call(mem, pickFont(fSmall, fSmallAlt, label))
+		pSetTextColor.Call(mem, colAccent)
+		lr := RECT{pad, headH, w - pad - sc(24), headH + barH}
+		drawText(mem, label, &lr, DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX|DT_END_ELLIPSIS)
+		pSelectObject.Call(mem, fIcon)
+		pSetTextColor.Call(mem, colDim)
+		xr := RECT{w - pad - sc(22), headH, w - pad, headH + barH}
+		drawText(mem, "\uE711", &xr, DT_SINGLELINE|DT_VCENTER|DT_CENTER)
+		listTop = headH + barH + sc(4)
+	}
 	if notice != "" {
 		pSelectObject.Call(mem, fSmall)
 		nr := RECT{pad, 0, w - pad, 0}
@@ -691,10 +750,18 @@ func paintOverlay(h uintptr) {
 
 	hitEntries = hitEntries[:0]
 	textW := w - 2*pad - sc(6)
+	if overlayFontGen != measureGen || len(measureCache) > 3000 {
+		measureGen, measureCache = overlayFontGen, map[measureKey]int32{} // new skin, DPI or text size
+	}
 	measure := func(font uintptr, s string) int32 {
+		k := measureKey{font, textW, s}
+		if v, ok := measureCache[k]; ok {
+			return v
+		}
 		pSelectObject.Call(mem, font)
 		mr := RECT{0, 0, textW, 0}
 		drawText(mem, s, &mr, DT_CALCRECT|DT_WORDBREAK|DT_NOPREFIX|DT_EDITCONTROL)
+		measureCache[k] = mr.Bottom
 		return mr.Bottom
 	}
 	// clip drawing to the list area
@@ -732,6 +799,13 @@ func paintOverlay(h uintptr) {
 		case stateDone:
 			if showOrig || e.Own {
 				sub = e.Msg.Text
+			}
+			if e.Own && e.Back != "" {
+				if sameMeaning(e.Back, e.Msg.Text) {
+					sub += "\n" + T("Reads back the same.")
+				} else {
+					sub += "\n" + Tf("Reads back as: %s", e.Back)
+				}
 			}
 			if len(e.Gloss) > 0 {
 				if sub != "" {
@@ -799,6 +873,10 @@ func paintOverlay(h uintptr) {
 	maxScroll = total - (listBottom - listTop)
 	if maxScroll < 0 {
 		maxScroll = 0
+	}
+	if scrollPx > maxScroll { // the list got shorter (cleared, muted, conversation view)
+		scrollPx = maxScroll
+		invalidate(h)
 	}
 	pSelectClipRgn.Call(mem, 0)
 	drawFrameBorder(mem, w, ht)
@@ -1018,3 +1096,19 @@ func setVoiceMode(m string) {
 }
 
 var curHeadH int32 = 32
+
+// Text heights measured while painting, reused until the fonts or width change.
+type measureKey struct {
+	font  uintptr
+	width int32
+	text  string
+}
+
+var (
+	measureCache   = map[measureKey]int32{}
+	measureGen     int
+	overlayFontGen int
+	noticeShown    bool // a notice is on screen, so the 1 s timer must repaint to expire it
+)
+
+var wheelAcc int32 // overlay wheel movement not yet turned into pixels

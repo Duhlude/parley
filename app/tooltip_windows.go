@@ -194,6 +194,7 @@ func pollOverlayTip() {
 		{"quick", qrRect, T("Quick replies: common phrases, already translated. One click copies it, ready to paste in WoW.")},
 		{"mic", micRect, T("Voice reply: speak in your language and Parley types, translates and copies it (Ctrl+Shift+Y).")},
 		{"toclear", toClearRect, T("Stop replying to this person.")},
+		{"thread", threadRect, T("Showing one conversation. Click to see all messages again.")},
 	} {
 		if b.r.Right > b.r.Left && inRect(b.r, c.X, c.Y) {
 			a := b.r

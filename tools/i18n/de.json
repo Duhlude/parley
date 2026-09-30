@@ -251,5 +251,15 @@
  "WoW folder": "WoW-Ordner",
  "Never translate these names or words": "Diese Namen oder Wörter nie übersetzen",
  "e.g. your guild name, nicknames": "z. B. dein Gildenname, Spitznamen",
- "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Namen und Wörter, die Parley genau so lässt, wie sie geschrieben sind – in Nachrichten und in deinen Antworten: dein Gildenname, Spitznamen, Insider-Witze. Mit Kommas trennen."
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Namen und Wörter, die Parley genau so lässt, wie sie geschrieben sind – in Nachrichten und in deinen Antworten: dein Gildenname, Spitznamen, Insider-Witze. Mit Kommas trennen.",
+ "Check replies by translating them back": "Antworten durch Rückübersetzung prüfen",
+ "After Parley translates your reply, it translates it back into your language and shows that under the reply, so you can see what the other player will read. With DeepL or Azure this uses a few extra characters.": "Nachdem Parley deine Antwort übersetzt hat, übersetzt es sie zurück in deine Sprache und zeigt das unter der Antwort an – so siehst du, was der andere Spieler liest. Mit DeepL oder Azure kostet das ein paar zusätzliche Zeichen.",
+ "Reads back the same.": "Rückübersetzung stimmt überein.",
+ "Reads back as: %s": "Rückübersetzt: %s",
+ "Conversation with %s": "Unterhaltung mit %s",
+ "click to show all messages": "klicken, um alle Nachrichten zu zeigen",
+ "Show all messages": "Alle Nachrichten zeigen",
+ "Leave the conversation view and show everything again.": "Die Unterhaltungsansicht verlassen und wieder alles zeigen.",
+ "Show only this player's messages and your replies to them, as one conversation. Handy for whispers.": "Nur die Nachrichten dieses Spielers und deine Antworten an ihn zeigen, als eine Unterhaltung. Praktisch für Flüstern.",
+ "Showing one conversation. Click to see all messages again.": "Eine Unterhaltung wird angezeigt. Klicken, um wieder alle Nachrichten zu sehen."
 }
