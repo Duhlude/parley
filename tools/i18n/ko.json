@@ -198,7 +198,7 @@
  "Keeps one text file per day with translated chat and your replies, so you can look things up later.": "번역된 채팅과 내 답장을 하루에 한 파일씩 저장해 나중에 찾아볼 수 있습니다.",
  "Mouse clicks go through the overlay to WoW, so you can't hit it by accident. Ctrl+Shift+T to use it, Esc to go back.": "마우스 클릭이 오버레이를 통과해 WoW로 가므로 실수로 누르지 않습니다. 사용하려면 Ctrl+Shift+T, 돌아가려면 Esc.",
  "Play a soft sound when a message mentions your character or one of your alert words (Settings).": "메시지에 내 캐릭터나 알림 단어가 나오면 부드러운 소리를 냅니다(설정).",
- "Once a day, check GitHub for a new version of Parley.": "하루에 한 번 GitHub에서 새 Parley 버전을 확인합니다.",
+ "Check GitHub for a new version of Parley when it opens, and every few hours while it runs.": "Parley를 열 때와 실행 중 몇 시간마다 GitHub에서 새 버전을 확인합니다.",
  "Adds a \"Terms\" line under messages that explains WoW jargon (LFG, dungeon names, class terms) in your language.": "메시지 아래에 WoW 용어(LFG, 던전 이름, 직업 용어)를 내 언어로 설명하는 '용어' 줄을 추가합니다.",
  "Copies the latest Parley addon into your WoW folders. Type /reload in game afterwards.": "최신 Parley 애드온을 WoW 폴더에 복사합니다. 그런 다음 게임에서 /reload를 입력하세요.",
  "Empties the overlay. Chat history files are kept.": "오버레이를 비웁니다. 채팅 기록 파일은 유지됩니다.",

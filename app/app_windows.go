@@ -846,7 +846,7 @@ func trayMenu() {
 		{Label: T("Alert sound"), ID: cmdAlertSound, Checked: app.cfg.AlertSound != "off",
 			Tip: T("Play a soft sound when a message mentions your character or one of your alert words (Settings).")},
 		{Label: T("Check for updates"), ID: cmdUpdateCheck, Checked: app.cfg.UpdateCheck != "off",
-			Tip: T("Once a day, check GitHub for a new version of Parley.")},
+			Tip: T("Check GitHub for a new version of Parley when it opens, and every few hours while it runs.")},
 		{Label: T("Explain gaming terms"), ID: cmdExplain, Checked: app.explainTerms(),
 			Tip: T("Adds a \"Terms\" line under messages that explains WoW jargon (LFG, dungeon names, class terms) in your language.")},
 		{Label: T("Install / update WoW addon"), ID: cmdInstall, Tip: T("Copies the latest Parley addon into your WoW folders. Type /reload in game afterwards.")},

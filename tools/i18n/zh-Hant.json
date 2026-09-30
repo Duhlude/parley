@@ -198,7 +198,7 @@
  "Keeps one text file per day with translated chat and your replies, so you can look things up later.": "每天儲存一個文字檔，包含翻譯後的聊天和你的回覆，方便日後查詢。",
  "Mouse clicks go through the overlay to WoW, so you can't hit it by accident. Ctrl+Shift+T to use it, Esc to go back.": "滑鼠點擊會穿過浮窗直接到魔獸世界，避免誤按。按 Ctrl+Shift+T 使用浮窗，按 Esc 返回。",
  "Play a soft sound when a message mentions your character or one of your alert words (Settings).": "當訊息提到你的角色或你的提醒詞時播放輕柔的提示音（設定中）。",
- "Once a day, check GitHub for a new version of Parley.": "每天在 GitHub 上檢查一次 Parley 新版本。",
+ "Check GitHub for a new version of Parley when it opens, and every few hours while it runs.": "啟動時以及執行期間每隔幾小時在 GitHub 上檢查 Parley 新版本。",
  "Adds a \"Terms\" line under messages that explains WoW jargon (LFG, dungeon names, class terms) in your language.": "在訊息下方加入「術語」一行，用你的語言解釋魔獸術語（LFG、副本名稱、職業術語）。",
  "Copies the latest Parley addon into your WoW folders. Type /reload in game afterwards.": "把最新的 Parley 插件複製到魔獸世界資料夾。之後在遊戲中輸入 /reload。",
  "Empties the overlay. Chat history files are kept.": "清空浮窗。聊天記錄檔會保留。",

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The update check now runs a few seconds after Parley opens (it used to wait until later), then every 6 hours while Parley is running. If the check fails, for example because Parley started with Windows before the network was up, it tries again a few minutes later.
+
 ## App 1.6.0 · Addon 1.5.0 (2026-09-29)
 
 ### Added

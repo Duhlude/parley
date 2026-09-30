@@ -198,7 +198,7 @@
  "Keeps one text file per day with translated chat and your replies, so you can look things up later.": "Guarda um arquivo de texto por dia com o chat traduzido e suas respostas, para consultar depois.",
  "Mouse clicks go through the overlay to WoW, so you can't hit it by accident. Ctrl+Shift+T to use it, Esc to go back.": "Os cliques atravessam a sobreposição até o WoW, para você não clicar nela sem querer. Ctrl+Shift+T para usar, Esc para voltar.",
  "Play a soft sound when a message mentions your character or one of your alert words (Settings).": "Toca um som suave quando uma mensagem menciona seu personagem ou uma das suas palavras de alerta (Configurações).",
- "Once a day, check GitHub for a new version of Parley.": "Uma vez por dia, procura uma nova versão do Parley no GitHub.",
+ "Check GitHub for a new version of Parley when it opens, and every few hours while it runs.": "Procura uma nova versão do Parley no GitHub ao abrir e a cada poucas horas enquanto ele está aberto.",
  "Adds a \"Terms\" line under messages that explains WoW jargon (LFG, dungeon names, class terms) in your language.": "Adiciona uma linha \"Termos\" abaixo das mensagens explicando gírias do WoW (LFG, nomes de masmorras, termos de classe) no seu idioma.",
  "Copies the latest Parley addon into your WoW folders. Type /reload in game afterwards.": "Copia o addon do Parley mais recente para as pastas do WoW. Depois digite /reload no jogo.",
  "Empties the overlay. Chat history files are kept.": "Esvazia a sobreposição. Os arquivos de histórico são mantidos.",

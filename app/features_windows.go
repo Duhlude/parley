@@ -10,15 +10,22 @@ import (
 
 var pPlaySoundW = winmm.NewProc("PlaySoundW")
 
-// updateLoop checks GitHub shortly after start and then once a day.
+// updateLoop checks GitHub right after Parley opens, then every 6 hours for
+// people who leave it running. If the check fails (e.g. Parley started with
+// Windows before the network was up) it retries every few minutes.
 func updateLoop() {
-	time.Sleep(20 * time.Second)
+	time.Sleep(3 * time.Second) // let the overlay come up first
 	for {
 		app.mu.Lock()
 		on := app.cfg.UpdateCheck != "off"
 		app.mu.Unlock()
+		wait := 6 * time.Hour
 		if on {
-			if r, err := latestRelease(); err == nil && newerVersion(r.Version, appVersion) {
+			r, err := latestRelease()
+			switch {
+			case err != nil:
+				wait = 3 * time.Minute
+			case newerVersion(r.Version, appVersion):
 				app.mu.Lock()
 				first := app.update.Version != r.Version
 				app.update = r
@@ -28,7 +35,7 @@ func updateLoop() {
 				}
 			}
 		}
-		time.Sleep(24 * time.Hour)
+		time.Sleep(wait)
 	}
 }
 

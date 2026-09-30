@@ -1,6 +1,6 @@
 package main
 
-// Update check: once a day Parley asks GitHub for the latest release and,
+// Update check: when it opens (then every 6 hours) Parley asks GitHub for the latest release and,
 // if it's newer, offers it in the overlay and the tray menu. Nothing is sent
 // except a normal web request; no personal data.
 

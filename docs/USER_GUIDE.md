@@ -59,7 +59,7 @@ It never hides while your mouse is over it, while you're typing a reply, or whil
 
 ## Updates
 
-About once a day Parley checks GitHub for a newer version. When there is one, the overlay says so and the tray menu gets a **Download Parley x.y.z** item that opens the release page. Turn it off under tray icon → **Check for updates**.
+When it opens (and every few hours while it runs) Parley checks GitHub for a newer version. When there is one, the overlay says so and the tray menu gets a **Download Parley x.y.z** item that opens the release page. Turn it off under tray icon → **Check for updates**.
 
 ## Voice replies
 
