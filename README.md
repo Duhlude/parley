@@ -32,7 +32,7 @@ Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Pa
 - **In your language**: the app, installer and addon follow your Windows and WoW language (German, Spanish, French, Italian, Portuguese, Russian, Korean, Chinese), and chat is translated into your language out of the box.
 - **Other WoW versions (beta)**: the addon also loads on the Anniversary realms, Mists of Pandaria Classic and Retail, and Parley installs it into each one it finds. These haven't had much testing yet, so please [report anything odd](../../issues). One catch on Retail: during Mythic+ keys, PvP matches and boss fights Blizzard hides chat from all addons, so Parley pauses there and says so in the overlay. It picks up again as soon as they end.
 - **Skins**: Classic WoW, Retail WoW, Dragonflight UI, WoW chat frame and a modern dark theme.
-- **Safe by design**: the addon uses only Blizzard's standard addon API. The desktop app never reads game memory, injects code or presses keys.
+- **Hands off the game**: the addon uses only Blizzard's standard addon API. The desktop app never opens the WoW process, reads its memory, injects code or presses keys.
 
 ## Skins
 
@@ -80,7 +80,7 @@ Run **`Parley-Setup.exe`** from the [Releases](../../releases) page. It installs
 
 ## Is this allowed?
 
-The addon follows Blizzard's UI Add-On Development Policy: it's free, its code is open, it contains no ads, and it only uses the normal addon API. The desktop app works like a screen-capture or stream overlay tool. It only reads a few pixels off the screen and never touches the game process. Blizzard has not reviewed or approved Parley, though, and third-party programs are always used at your own risk. See the "Is this safe?" section of the [User Guide](docs/USER_GUIDE.md#is-this-safe).
+The addon follows Blizzard's UI Add-On Development Policy: it's free, its code is open, it contains no ads, and it only uses the normal addon API. The desktop app works like a screen-capture or stream overlay tool: it reads a few pixels off the screen and never opens the game process, reads its memory or sends it input. But Blizzard's terms also cover outside programs that collect information from the game, and carrying chat out of WoW is exactly what Parley does. Blizzard has not reviewed or approved Parley and hasn't said whether tools like it are acceptable, so use it at your own risk. See the "Is this safe?" section of the [User Guide](docs/USER_GUIDE.md#is-this-safe).
 
 ## License
 

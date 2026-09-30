@@ -1,5 +1,11 @@
 # Changelog
 
+## App 1.9.1 (2026-09-30)
+
+### Changed
+- Parley now finds the WoW window through Windows' list of running programs and no longer opens the WoW process at all (before, it opened it with the most limited access Windows has, only to read the program's name).
+- README, User Guide and How it works now describe exactly what the app touches, and quote the part of Blizzard's EULA about software that collects information from the game, instead of only the "facilitates gameplay" part.
+
 ## App 1.9.0 (2026-09-30)
 
 ### Added

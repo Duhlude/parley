@@ -65,9 +65,11 @@ The same addon loads on Classic Era, the Anniversary realms, Mists of Pandaria C
 
 Since Midnight, Retail passes chat to addons as *secret values* while a Mythic+ key, a PvP match or a boss encounter is active: an addon may show them but can't read them, so they can't be painted into the strip. The addon checks every chat argument with `issecretvalue` first. When chat is hidden it sends a single `X` frame (at most once every 30 seconds) instead of the message, and the app shows a note that Parley will pick up again afterwards. Everything else, including the strip protocol, is identical.
 
-## Why screen capture is considered safe
+## What the app does and doesn't touch
 
-The app never opens a handle to the WoW process, never reads its memory, and never sends it input. It reads a few hundred pixels of the desktop, which is the same thing streaming and screenshot tools do. The addon uses only documented API calls (`CreateFrame`, `SetColorTexture`, chat events).
+The app never opens the WoW process (no process handle at all), never reads its memory, and never sends it input. It finds the WoW window by looking for WoW's program name (`Wow.exe`, `WowClassic.exe`, …) in Windows' list of running programs, then reads a few hundred pixels of the desktop where that window is, which is the same thing streaming and screenshot tools do. The addon uses only documented API calls (`CreateFrame`, `SetColorTexture`, chat events).
+
+That keeps Parley far from the techniques anti-cheat looks for, but it doesn't settle the policy question: Blizzard's [EULA](https://www.blizzard.com/en-us/legal/fba4d00f-c7e4-4883-b8b9-1b4500a402ea/blizzard-end-user-license-agreement) also prohibits unauthorised software that "intercepts, collects, reads, or 'mines' information generated or stored by the Platform" (section 1.C.vi), and the pixel bridge exists to carry chat out of the game to a separate program. Blizzard hasn't ruled on tools like this, so Parley doesn't claim to be approved.
 
 ## Offline translation
 

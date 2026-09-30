@@ -324,31 +324,37 @@ func autoInstall() {
 var wowExes = map[string]bool{"wowclassic.exe": true, "wow.exe": true, "wowclassict.exe": true,
 	"wowclassicb.exe": true, "wowt.exe": true, "wowb.exe": true}
 
-func processName(pid uint32) string {
-	h, _, _ := pOpenProcess.Call(0x1000, 0, uintptr(pid))
-	if h == 0 {
-		return ""
+// wowPIDs lists the running WoW processes by executable name. It reads the
+// system's process list (a Toolhelp snapshot), so Parley never opens a
+// handle to the game process itself.
+func wowPIDs() map[uint32]bool {
+	out := map[uint32]bool{}
+	snap, err := syscall.CreateToolhelp32Snapshot(syscall.TH32CS_SNAPPROCESS, 0)
+	if err != nil {
+		return out
 	}
-	defer pCloseHandle.Call(h)
-	buf := make([]uint16, 520)
-	n := uint32(len(buf))
-	if r, _, _ := pQueryFullProcessImageNameW.Call(h, 0, uintptr(unsafe.Pointer(&buf[0])),
-		uintptr(unsafe.Pointer(&n))); r == 0 {
-		return ""
+	defer syscall.CloseHandle(snap)
+	var pe syscall.ProcessEntry32
+	pe.Size = uint32(unsafe.Sizeof(pe))
+	for err = syscall.Process32First(snap, &pe); err == nil; err = syscall.Process32Next(snap, &pe) {
+		if wowExes[strings.ToLower(syscall.UTF16ToString(pe.ExeFile[:]))] {
+			out[pe.ProcessID] = true
+		}
 	}
-	return strings.ToLower(filepath.Base(syscall.UTF16ToString(buf[:n])))
+	return out
 }
 
 var (
 	enumBest     uintptr
 	enumBestArea int32
+	enumPIDs     map[uint32]bool
 	enumCB       = syscall.NewCallback(func(h, _ uintptr) uintptr {
 		if v, _, _ := pIsWindowVisible.Call(h); v == 0 {
 			return 1
 		}
 		var pid uint32
 		pGetWindowThreadProcessId.Call(h, uintptr(unsafe.Pointer(&pid)))
-		if !wowExes[processName(pid)] {
+		if !enumPIDs[pid] {
 			return 1
 		}
 		r := clientRect(h)
@@ -361,6 +367,9 @@ var (
 
 func findWow() uintptr {
 	enumBest, enumBestArea = 0, 0
+	if enumPIDs = wowPIDs(); len(enumPIDs) == 0 {
+		return 0
+	}
 	pEnumWindows.Call(enumCB, 0)
 	return enumBest
 }
