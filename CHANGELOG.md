@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## App 1.9.2 · Addon 1.6.1 (2026-09-30)
+
+### Changed
+- Addon 1.6.1: marked as up to date for Retail 12.1.5 (`## Interface` now also lists 120105), so Retail no longer shows it as out of date. The app installs the new addon automatically.
 
 ### Docs
 - New screenshots for replies with the back-translation check, the conversation view, the message menu and the settings window.

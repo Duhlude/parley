@@ -2,6 +2,8 @@
 
 **Live chat translation for Classic Era.** Anniversary, Mists of Pandaria Classic and Retail are supported in beta. Read what Brazilian, Russian, Spanish, German and other players are saying as they type, and answer them in their own language.
 
+![Parley translating French, Japanese, Chinese and Korean chat in WoW Classic Era](https://raw.githubusercontent.com/Duhlude/parley/main/assets/screenshots/in-game.jpg)
+
 > **Please read before installing the desktop app.** The addon itself only uses Blizzard's normal addon API. The companion app is an outside program: it never opens the game, reads its memory, injects anything or presses keys, but its purpose is to carry chat out of WoW to be translated, and Blizzard's EULA restricts software that "collects information" from the game. Blizzard has not reviewed or approved Parley and doesn't pre-approve tools like it. We believe the risk is low, but we can't promise it's zero. **Use it at your own risk**, and if you want to be careful, try it on an account you wouldn't mind losing. Details: "Is this safe?" in the [User Guide](https://github.com/Duhlude/parley/blob/main/docs/USER_GUIDE.md#is-this-safe).
 
 ## What it does
@@ -13,6 +15,12 @@
 - Quick replies, alerts when someone mentions you, a conversation view for whispers, and a list of names (your guild, friends) that are never translated.
 - An in-game settings window (`/parley` or the minimap button) with one-click presets such as *Friends & group*, *Group only* and *Social*, plus your own saved presets.
 - Skins for the overlay: Classic, Retail, Dragonflight or chat-frame style.
+
+![The Parley skins](https://raw.githubusercontent.com/Duhlude/parley/main/assets/screenshots/06_skins.png)
+
+![Replying: type in English, Parley translates it and shows what it says](https://raw.githubusercontent.com/Duhlude/parley/main/assets/screenshots/02_reply.png)
+
+![Conversation view for whispers](https://raw.githubusercontent.com/Duhlude/parley/main/assets/screenshots/07_conversation.png)
 
 ## Important: this addon needs the free Parley desktop app
 
