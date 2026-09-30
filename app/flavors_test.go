@@ -24,6 +24,14 @@ func TestWowInstalls(t *testing.T) {
 	if got := wowInstalls(root); !reflect.DeepEqual(got, []string{era, retail}) {
 		t.Errorf("root picked: %v", got)
 	}
+	mists, anniv := filepath.Join(root, "_classic_"), filepath.Join(root, "_anniversary_")
+	os.MkdirAll(mists, 0o755)
+	os.MkdirAll(anniv, 0o755)
+	if got := wowInstalls(mists); !reflect.DeepEqual(got, []string{mists, era, anniv, retail}) {
+		t.Errorf("progression classic picked: %v", got)
+	}
+	os.RemoveAll(mists)
+	os.RemoveAll(anniv)
 	dests, err := installAddonAll(root)
 	if err != nil || len(dests) != 2 {
 		t.Fatalf("installAddonAll: %v %v", dests, err)

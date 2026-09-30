@@ -2,7 +2,7 @@
 
 # Parley
 
-**Live chat translation for World of Warcraft Classic Era** (Retail support is in beta).
+**Live chat translation for World of Warcraft Classic Era**, with beta support for Anniversary realms, Mists of Pandaria Classic and Retail.
 
 Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Parley translates their chat into your language as it arrives, and translates your replies back into theirs. Type or speak your reply; Parley copies it, ready to paste.
 
@@ -24,11 +24,11 @@ Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Pa
 - **Quick replies**: one click for *Invite me, please*, *Thanks for the group!*, *One moment* and more, already translated into nine languages.
 - **Alerts**: messages that mention your character or words you pick (*Deadmines*, *WTB*, *healer*) are highlighted with a soft sound.
 - **Auto-hide**: the overlay can fade away when chat is quiet and come back the moment someone writes.
-- **Handy extras**: right-click a message to copy it, reply, or mute a spammer; a click-through mode so the overlay never catches a stray click; a daily chat-history file, and a notice when a new version is out.
+- **Handy extras**: right-click a message to copy it, reply, or mute a spammer; a click-through mode so the overlay never catches a stray click; a daily chat-history file, and one-click updates when a new version is out.
 - **Voice replies**: press Ctrl+Shift+Y and talk. Speech is transcribed on your own PC (whisper.cpp), with no popup and no online speech service.
 - **Knows gamer talk**: WoW terms (tank, LFG, WTS, dungeon abbreviations) stay in English, chat shortcuts (sry, w8, idk…) and Brazilian shorthand (vc, blz, kkkk…) are spelled out for the translator, and an optional "Terms" line explains WoW jargon in your language. The slang dictionary comes from the MIT-licensed BabelChat and WoW Translator projects.
 - **In your language**: the app, installer and addon follow your Windows and WoW language (German, Spanish, French, Italian, Portuguese, Russian, Korean, Chinese), and chat is translated into your language out of the box.
-- **Retail (beta)**: the addon also loads on Retail, but hasn't had much testing there yet, so please [report anything odd](../../issues). One catch: during Mythic+ keys, PvP matches and boss fights Blizzard hides chat from all addons, so Parley pauses there and says so in the overlay. It picks up again as soon as they end.
+- **Other WoW versions (beta)**: the addon also loads on the Anniversary realms, Mists of Pandaria Classic and Retail, and Parley installs it into each one it finds. These haven't had much testing yet, so please [report anything odd](../../issues). One catch on Retail: during Mythic+ keys, PvP matches and boss fights Blizzard hides chat from all addons, so Parley pauses there and says so in the overlay. It picks up again as soon as they end.
 - **Skins**: Classic WoW, Retail WoW, Dragonflight UI, WoW chat frame and a modern dark theme.
 - **Safe by design**: the addon uses only Blizzard's standard addon API. The desktop app never reads game memory, injects code or presses keys.
 
@@ -50,7 +50,7 @@ The full explanation is in [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 ## Requirements
 
 - Windows 10 or 11 (64-bit)
-- World of Warcraft **Classic Era** (or **Retail**, beta) in **Windowed (Fullscreen)** display mode (the addon loads on both, and Parley installs it into each one it finds)
+- World of Warcraft **Classic Era** (or, in beta, **Anniversary**, **Mists of Pandaria Classic** or **Retail**) in **Windowed (Fullscreen)** display mode. Parley installs the addon into each one it finds
 - That's it. A DeepL API key is optional.
 
 ## Performance & what it reads

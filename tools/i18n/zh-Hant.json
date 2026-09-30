@@ -239,5 +239,14 @@
  "After 30 seconds": "30 秒後",
  "After 1 minute": "1 分鐘後",
  "After 2 minutes": "2 分鐘後",
- "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "聊天安靜這麼久後淡出浮窗。有新訊息或按 Ctrl+Shift+T 時會重新出現。"
+ "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "聊天安靜這麼久後淡出浮窗。有新訊息或按 Ctrl+Shift+T 時會重新出現。",
+ "Parley was updated to version %s.": "Parley 已更新到 %s 版。",
+ "Update to Parley %s": "更新到 Parley %s",
+ "Downloads and installs the new version, then restarts Parley. Your settings are kept.": "下載並安裝新版本，然後重新啟動 Parley。你的設定會保留。",
+ "Updating to Parley %s…": "正在更新到 Parley %s…",
+ "Parley %s is available. Right-click the tray icon and choose Update.": "Parley %s 已發布。在系統匣圖示上按右鍵並選擇「更新」。",
+ "Downloading Parley %s…": "正在下載 Parley %s…",
+ "Downloading Parley %s… %d%%": "正在下載 Parley %s… %d%%",
+ "Installing Parley %s…": "正在安裝 Parley %s…",
+ "Couldn't install the update automatically, so its download page is opening instead.": "無法自動安裝更新，將開啟下載頁面。"
 }

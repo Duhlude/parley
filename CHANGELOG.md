@@ -1,8 +1,17 @@
 # Changelog
 
-## Unreleased
+## App 1.7.0 · Addon 1.6.0 (2026-09-29)
 
+### Added
+- **One-click updates.** When a new version is out, tray → *Update to Parley x.y.z* downloads the installer from GitHub, checks it against GitHub's published SHA-256 checksum, installs it quietly and restarts Parley. Settings are kept and the WoW addon is updated too. If anything goes wrong nothing is installed and the release page opens instead. (Installer: new `/update` mode for this.)
+- **More WoW versions (beta).** The addon now also loads on the **Anniversary** realms (`_anniversary_`) and **Mists of Pandaria Classic** (`_classic_`), besides Classic Era and Retail. The app and installer install it into every one they find.
+
+### Changed
 - The update check now runs a few seconds after Parley opens (it used to wait until later), then every 6 hours while Parley is running. If the check fails, for example because Parley started with Windows before the network was up, it tries again a few minutes later.
+- Repository reorganized: app source in `app/`, prebuilt helpers in `bin/` (see docs/BUILDING.md). No change for players.
+
+### Addon 1.6.0
+- Loads on Classic Era, Anniversary, Mists of Pandaria Classic and Retail (`## Interface: 11509, 20506, 50504, 120100`).
 
 ## App 1.6.0 · Addon 1.5.0 (2026-09-29)
 

@@ -239,5 +239,14 @@
  "After 30 seconds": "30초 후",
  "After 1 minute": "1분 후",
  "After 2 minutes": "2분 후",
- "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "채팅이 이 시간 동안 조용하면 오버레이를 서서히 숨깁니다. 새 메시지가 오거나 Ctrl+Shift+T를 누르면 돌아옵니다."
+ "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "채팅이 이 시간 동안 조용하면 오버레이를 서서히 숨깁니다. 새 메시지가 오거나 Ctrl+Shift+T를 누르면 돌아옵니다.",
+ "Parley was updated to version %s.": "Parley가 %s 버전으로 업데이트되었습니다.",
+ "Update to Parley %s": "Parley %s(으)로 업데이트",
+ "Downloads and installs the new version, then restarts Parley. Your settings are kept.": "새 버전을 내려받아 설치한 뒤 Parley를 다시 시작합니다. 설정은 그대로 유지됩니다.",
+ "Updating to Parley %s…": "Parley %s(으)로 업데이트 중…",
+ "Parley %s is available. Right-click the tray icon and choose Update.": "Parley %s을(를) 사용할 수 있습니다. 트레이 아이콘을 마우스 오른쪽 버튼으로 클릭하고 업데이트를 선택하세요.",
+ "Downloading Parley %s…": "Parley %s 다운로드 중…",
+ "Downloading Parley %s… %d%%": "Parley %s 다운로드 중… %d%%",
+ "Installing Parley %s…": "Parley %s 설치 중…",
+ "Couldn't install the update automatically, so its download page is opening instead.": "업데이트를 자동으로 설치하지 못해 다운로드 페이지를 엽니다."
 }

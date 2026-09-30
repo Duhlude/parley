@@ -1,10 +1,12 @@
 PARLEY - HOW TO INSTALL
-Live chat translation for World of Warcraft Classic Era (Retail: beta)
+Live chat translation for World of Warcraft Classic Era
+(beta: Anniversary, Mists of Pandaria Classic, Retail)
 ========================================================
 
 You need:
   - Windows 10 or 11 (64-bit)
-  - World of Warcraft Classic Era or Retail
+  - World of Warcraft Classic Era, Anniversary, Mists of Pandaria Classic
+    or Retail
   - No account or API key: Parley translates offline on your PC.
 
 
@@ -29,8 +31,8 @@ STEP 2 - SET UP PARLEY
   1. Click the gear icon in the Parley overlay.
   2. Pick the language you want chat translated into.
      "Translation engine" is already set to Offline; leave it.
-  3. Check that "WoW folder" points to your _classic_era_ or _retail_
-     folder, for example:
+  3. Check that "WoW folder" points to your WoW version's folder
+     (_classic_era_, _anniversary_, _classic_ or _retail_), for example:
         C:\Program Files (x86)\World of Warcraft\_classic_era_
         D:\Games\WoW\World of Warcraft\_retail_
      Click "Install addon" if you changed it. Parley installs the addon

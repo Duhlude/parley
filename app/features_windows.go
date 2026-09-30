@@ -4,6 +4,11 @@ package main
 // quick-reply menu.
 
 import (
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"sync/atomic"
 	"time"
 	"unsafe"
 )
@@ -31,12 +36,70 @@ func updateLoop() {
 				app.update = r
 				app.mu.Unlock()
 				if first {
-					app.setNotice(Tf("Parley %s is available. Right-click the tray icon to download it.", r.Version))
+					if canSelfUpdate(r) {
+						app.setNotice(Tf("Parley %s is available. Right-click the tray icon and choose Update.", r.Version))
+					} else {
+						app.setNotice(Tf("Parley %s is available. Right-click the tray icon to download it.", r.Version))
+					}
 				}
 			}
 		}
 		time.Sleep(wait)
 	}
+}
+
+// updating is set while an update downloads (GUI thread reads it for the menu).
+var updating atomic.Bool
+
+// installedCopy reports whether this Parley.exe is the one Parley-Setup
+// installed (%LOCALAPPDATA%\Programs\Parley), which the installer can replace.
+func installedCopy() bool {
+	exe, err := os.Executable()
+	if err != nil {
+		return false
+	}
+	if r, err := filepath.EvalSymlinks(exe); err == nil {
+		exe = r
+	}
+	want := filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "Parley")
+	return os.Getenv("LOCALAPPDATA") != "" && strings.EqualFold(filepath.Clean(filepath.Dir(exe)), filepath.Clean(want))
+}
+
+// canSelfUpdate: the release can be installed from inside Parley.
+func canSelfUpdate(r release) bool {
+	return r.canInstall() && (installedCopy() || os.Getenv("PARLEY_UPDATE_URL") != "")
+}
+
+// startUpdate downloads the new installer, checks it against GitHub's
+// checksum, runs it in update mode and quits; the installer replaces the
+// files and starts the new Parley. On any problem it opens the release page.
+func startUpdate(r release) {
+	if !updating.CompareAndSwap(false, true) {
+		return
+	}
+	go func() {
+		dir := filepath.Join(os.TempDir(), "Parley-update")
+		os.RemoveAll(dir) // old downloads
+		app.setNotice(Tf("Downloading Parley %s…", r.Version))
+		path, err := downloadSetup(r, dir, func(pct int) {
+			app.setNotice(Tf("Downloading Parley %s… %d%%", r.Version, pct))
+		})
+		if err == nil {
+			app.setNotice(Tf("Installing Parley %s…", r.Version))
+			cmd := exec.Command(path, "/update")
+			cmd.Dir = dir
+			err = cmd.Start()
+		}
+		if err != nil {
+			vlog("update failed: %v", err)
+			app.setNotice(T("Couldn't install the update automatically, so its download page is opening instead."))
+			openURL(r.URL)
+			updating.Store(false)
+			return
+		}
+		// The installer waits for Parley to close, updates it and starts it again.
+		pPostMessageW.Call(app.overlay, WM_APP+9, 0, 0)
+	}()
 }
 
 // chime plays Windows' notification sound for an alert, at most every 3 s.

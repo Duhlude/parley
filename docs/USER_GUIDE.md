@@ -59,7 +59,9 @@ It never hides while your mouse is over it, while you're typing a reply, or whil
 
 ## Updates
 
-When it opens (and every few hours while it runs) Parley checks GitHub for a newer version. When there is one, the overlay says so and the tray menu gets a **Download Parley x.y.z** item that opens the release page. Turn it off under tray icon → **Check for updates**.
+When it opens (and every few hours while it runs) Parley checks GitHub for a newer version. When there is one, the overlay says so and the tray menu gets an **Update to Parley x.y.z** item. Click it and Parley downloads the new installer from GitHub, checks it against the checksum GitHub publishes, installs it and restarts itself, usually within a few seconds. Your settings are kept, and the WoW addon is updated too (type `/reload` if WoW is running).
+
+If the download fails or doesn't match its checksum, nothing is installed and the release page opens instead, so you can download it yourself. (If you run Parley from somewhere other than where the installer put it, the item is **Download Parley x.y.z** and opens the release page.) Turn update checks off under tray icon → **Check for updates**.
 
 ## Voice replies
 
@@ -158,7 +160,7 @@ WoW's fonts aren't included because they're licensed. If you have Friz Quadrata 
 | Translate chat into | Your language (set from your Windows language on first start) |
 | Interface language | Language of Parley's own menus and windows. *Automatic* follows Windows; English, Deutsch, Español, Français, Italiano, Português, Русский, 한국어, 简体中文 and 繁體中文 are available. The addon follows your WoW client's language |
 | Skin | See above |
-| WoW folder | Your `_classic_era_` or `_retail_` folder, detected automatically. **Install addon** copies the addon into it and into the other one if you have both |
+| WoW folder | Your `_classic_era_`, `_anniversary_`, `_classic_` (Mists of Pandaria) or `_retail_` folder, detected automatically. **Install addon** copies the addon into it and into every other WoW version installed next to it |
 | Text size / Overlay opacity | Appearance |
 | Alert me when a message mentions | Words that get a message highlighted (and a sound), comma-separated. Your character is included automatically |
 | Show the original text | Shows the untranslated message under each translation |

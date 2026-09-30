@@ -57,9 +57,13 @@ Capacity is 540 bytes per frame, which is more than WoW's 255-byte chat limit pl
 
 `go test ./...` runs the real addon code (in Lua 5.1 with a stubbed WoW API) to produce frames, and decodes them, including with gamma distortion and corrupted pixels.
 
-## Retail
+## Other WoW versions
 
-The same addon loads on Classic Era and Retail (`## Interface: 11509, 120100`). Since Midnight, Retail passes chat to addons as *secret values* while a Mythic+ key, a PvP match or a boss encounter is active: an addon may show them but can't read them, so they can't be painted into the strip. The addon checks every chat argument with `issecretvalue` first. When chat is hidden it sends a single `X` frame (at most once every 30 seconds) instead of the message, and the app shows a note that Parley will pick up again afterwards. Everything else, including the strip protocol, is identical.
+The same addon loads on Classic Era, the Anniversary realms, Mists of Pandaria Classic and Retail (`## Interface: 11509, 20506, 50504, 120100`), and the app installs it into every one of those game folders it finds (`_classic_era_`, `_anniversary_`, `_classic_`, `_retail_`). All four run the modern client, so the addon code and the strip protocol are identical.
+
+### Retail
+
+Since Midnight, Retail passes chat to addons as *secret values* while a Mythic+ key, a PvP match or a boss encounter is active: an addon may show them but can't read them, so they can't be painted into the strip. The addon checks every chat argument with `issecretvalue` first. When chat is hidden it sends a single `X` frame (at most once every 30 seconds) instead of the message, and the app shows a note that Parley will pick up again afterwards. Everything else, including the strip protocol, is identical.
 
 ## Why screen capture is considered safe
 

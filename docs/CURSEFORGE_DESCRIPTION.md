@@ -1,6 +1,6 @@
 # Parley
 
-**Live chat translation for Classic Era.** Retail support is in beta. Read what Brazilian, Russian, Spanish, German and other players are saying as they type, and answer them in their own language.
+**Live chat translation for Classic Era.** Anniversary, Mists of Pandaria Classic and Retail are supported in beta. Read what Brazilian, Russian, Spanish, German and other players are saying as they type, and answer them in their own language.
 
 ## What it does
 
@@ -25,9 +25,9 @@ No account or API key needed. Each language downloads once (about 50 MB) the fir
 
 ## Requirements
 
-Windows 10/11 · WoW Classic Era or Retail in **Windowed (Fullscreen)** mode
+Windows 10/11 · WoW Classic Era, Anniversary, Mists of Pandaria Classic or Retail in **Windowed (Fullscreen)** mode
 
-**Retail is in beta**: please report problems on GitHub. On Retail, Blizzard hides chat from all addons during Mythic+ keys, PvP matches and boss fights, so Parley pauses there and resumes afterwards.
+**Anniversary, Mists of Pandaria Classic and Retail are in beta**: please report problems on GitHub. On Retail, Blizzard hides chat from all addons during Mythic+ keys, PvP matches and boss fights, so Parley pauses there and resumes afterwards.
 
 ---
 

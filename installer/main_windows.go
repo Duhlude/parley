@@ -3,6 +3,8 @@ package main
 // Parley-Setup.exe: a small per-user installer (no admin rights needed).
 //   Parley-Setup.exe              install or update
 //   Parley-Setup.exe /uninstall   remove Parley
+//   Parley-Setup.exe /update      quiet update started by Parley itself: no
+//                                 questions, then Parley is started again
 // Installs to %LOCALAPPDATA%\Programs\Parley, adds Start menu and desktop
 // shortcuts and an entry in Windows' "Installed apps" list.
 
@@ -22,7 +24,11 @@ import (
 //go:embed payload
 var payload embed.FS
 
-const version = "1.6.0"
+const version = "1.7.0"
+
+// wowFlavors: the WoW game folders Parley installs its addon into (keep in
+// step with app/config.go).
+var wowFlavors = []string{"_classic_era_", "_anniversary_", "_classic_", "_retail_"}
 
 var (
 	user32       = syscall.NewLazyDLL("user32.dll")
@@ -110,9 +116,44 @@ func startMenuLnk() string {
 const uninstKey = `HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\Parley`
 const runKey = `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
 
-func install() {
+// copyPayload writes the app files into dir. Right after Parley quits its
+// files can stay locked for a moment, so it retries for a while.
+func copyPayload(dir string) error {
+	var err error
+	for try := 0; try < 40; try++ {
+		if try > 0 {
+			time.Sleep(500 * time.Millisecond)
+		}
+		err = fs.WalkDir(payload, "payload", func(p string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			rel := strings.TrimPrefix(strings.TrimPrefix(p, "payload"), "/")
+			if rel == "" {
+				return nil
+			}
+			dst := filepath.Join(dir, filepath.FromSlash(rel))
+			if d.IsDir() {
+				return os.MkdirAll(dst, 0o755)
+			}
+			b, err := payload.ReadFile(p)
+			if err != nil {
+				return err
+			}
+			return os.WriteFile(dst, b, 0o755)
+		})
+		if err == nil {
+			return nil
+		}
+	}
+	return err
+}
+
+func exists(p string) bool { _, err := os.Stat(p); return err == nil }
+
+func install(update bool) {
 	dir := installDir()
-	if box(fmt.Sprintf(T("Install Parley %s (live WoW chat translation)?\n\nIt goes into:\n%s\n\nNo admin rights needed. If Parley is already installed it's updated and your settings are kept."), version, dir),
+	if !update && box(fmt.Sprintf(T("Install Parley %s (live WoW chat translation)?\n\nIt goes into:\n%s\n\nNo admin rights needed. If Parley is already installed it's updated and your settings are kept."), version, dir),
 		mbYesNo|mbQuestion) != idYes {
 		return
 	}
@@ -123,25 +164,7 @@ func install() {
 		box(T("Couldn't create the install folder:")+"\n"+err.Error(), mbOK|mbWarn)
 		return
 	}
-	err := fs.WalkDir(payload, "payload", func(p string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		rel := strings.TrimPrefix(strings.TrimPrefix(p, "payload"), "/")
-		if rel == "" {
-			return nil
-		}
-		dst := filepath.Join(dir, filepath.FromSlash(rel))
-		if d.IsDir() {
-			return os.MkdirAll(dst, 0o755)
-		}
-		b, err := payload.ReadFile(p)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(dst, b, 0o755)
-	})
-	if err != nil {
+	if err := copyPayload(dir); err != nil {
 		box(T("Install failed while copying files:")+"\n"+err.Error(), mbOK|mbWarn)
 		return
 	}
@@ -154,7 +177,9 @@ func install() {
 	exe := filepath.Join(dir, "Parley.exe")
 	addonMsg := installAddonToWow()
 	shortcut(startMenuLnk(), exe, dir)
-	shortcut(filepath.Join(desktopDir(), "Parley.lnk"), exe, dir)
+	if desk := filepath.Join(desktopDir(), "Parley.lnk"); !update || exists(desk) { // an update doesn't bring back a deleted shortcut
+		shortcut(desk, exe, dir)
+	}
 
 	hidden("reg", "add", uninstKey, "/v", "DisplayName", "/d", "Parley", "/f")
 	hidden("reg", "add", uninstKey, "/v", "DisplayVersion", "/d", version, "/f")
@@ -165,6 +190,14 @@ func install() {
 	hidden("reg", "add", uninstKey, "/v", "NoModify", "/t", "REG_DWORD", "/d", "1", "/f")
 	hidden("reg", "add", uninstKey, "/v", "NoRepair", "/t", "REG_DWORD", "/d", "1", "/f")
 
+	if update { // keep the start-with-Windows choice; start the new version
+		cmd := exec.Command(exe, "--updated")
+		cmd.Dir = dir
+		if cmd.Start() != nil {
+			box(T("Parley is installed."), mbOK|mbInfo)
+		}
+		return
+	}
 	if box(T("Start Parley automatically when Windows starts?"), mbYesNo|mbQuestion) == idYes {
 		hidden("reg", "add", runKey, "/v", "Parley", "/d", `"`+exe+`"`, "/f")
 	} else {
@@ -204,10 +237,16 @@ func main() {
 			return
 		}
 	}
-	install()
+	update := false
+	for _, a := range os.Args[1:] {
+		if strings.EqualFold(a, "/update") || strings.EqualFold(a, "--update") {
+			update = true
+		}
+	}
+	install(update)
 }
 
-// wowFolders lists likely game folders (Classic Era and Retail): Battle.net's
+// wowFolders lists likely game folders (every supported WoW version): Battle.net's
 // registry entry first, then the default locations.
 func wowFolders() []string {
 	var out []string
@@ -222,7 +261,7 @@ func wowFolders() []string {
 				p := strings.TrimSpace(line[i+6:])
 				// InstallPath points at e.g. ...\World of Warcraft\_retail_\
 				root := filepath.Dir(strings.TrimRight(p, `\`))
-				for _, fl := range []string{"_classic_era_", "_retail_"} {
+				for _, fl := range wowFlavors {
 					out = append(out, filepath.Join(root, fl))
 				}
 			}
@@ -231,7 +270,7 @@ func wowFolders() []string {
 	for _, drive := range []string{"C", "D", "E", "F"} {
 		for _, rel := range []string{`Program Files (x86)\World of Warcraft`, `Program Files\World of Warcraft`,
 			`World of Warcraft`, `Games\World of Warcraft`, `Games\WoW\World of Warcraft`, `Battle.net\World of Warcraft`} {
-			for _, fl := range []string{"_classic_era_", "_retail_"} {
+			for _, fl := range wowFlavors {
 				out = append(out, drive+`:\`+rel+`\`+fl)
 			}
 		}

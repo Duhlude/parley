@@ -239,5 +239,14 @@
  "After 30 seconds": "Через 30 секунд",
  "After 1 minute": "Через 1 минуту",
  "After 2 minutes": "Через 2 минуты",
- "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "Окно плавно исчезает, если в чате столько времени тихо. Возвращается при новом сообщении или по Ctrl+Shift+T."
+ "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "Окно плавно исчезает, если в чате столько времени тихо. Возвращается при новом сообщении или по Ctrl+Shift+T.",
+ "Parley was updated to version %s.": "Parley обновлён до версии %s.",
+ "Update to Parley %s": "Обновить до Parley %s",
+ "Downloads and installs the new version, then restarts Parley. Your settings are kept.": "Скачивает и устанавливает новую версию, затем перезапускает Parley. Настройки сохраняются.",
+ "Updating to Parley %s…": "Обновление до Parley %s…",
+ "Parley %s is available. Right-click the tray icon and choose Update.": "Доступна версия Parley %s. Щёлкните правой кнопкой по значку в трее и выберите «Обновить».",
+ "Downloading Parley %s…": "Загрузка Parley %s…",
+ "Downloading Parley %s… %d%%": "Загрузка Parley %s… %d%%",
+ "Installing Parley %s…": "Установка Parley %s…",
+ "Couldn't install the update automatically, so its download page is opening instead.": "Не удалось установить обновление автоматически, поэтому открывается страница загрузки."
 }

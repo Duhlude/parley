@@ -239,5 +239,14 @@
  "After 30 seconds": "Après 30 secondes",
  "After 1 minute": "Après 1 minute",
  "After 2 minutes": "Après 2 minutes",
- "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "Estompe la fenêtre quand le chat est calme depuis ce délai. Elle revient à chaque nouveau message, ou avec Ctrl+Maj+T."
+ "Fade the overlay out when chat has been quiet this long. It comes back when a new message arrives, or with Ctrl+Shift+T.": "Estompe la fenêtre quand le chat est calme depuis ce délai. Elle revient à chaque nouveau message, ou avec Ctrl+Maj+T.",
+ "Parley was updated to version %s.": "Parley a été mis à jour vers la version %s.",
+ "Update to Parley %s": "Mettre à jour vers Parley %s",
+ "Downloads and installs the new version, then restarts Parley. Your settings are kept.": "Télécharge et installe la nouvelle version, puis redémarre Parley. Tes réglages sont conservés.",
+ "Updating to Parley %s…": "Mise à jour vers Parley %s…",
+ "Parley %s is available. Right-click the tray icon and choose Update.": "Parley %s est disponible. Fais un clic droit sur l'icône de la barre des tâches et choisis Mettre à jour.",
+ "Downloading Parley %s…": "Téléchargement de Parley %s…",
+ "Downloading Parley %s… %d%%": "Téléchargement de Parley %s… %d%%",
+ "Installing Parley %s…": "Installation de Parley %s…",
+ "Couldn't install the update automatically, so its download page is opening instead.": "Impossible d'installer la mise à jour automatiquement, sa page de téléchargement va donc s'ouvrir."
 }

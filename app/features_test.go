@@ -1,9 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -119,5 +125,64 @@ func TestAzure(t *testing.T) {
 	}
 	if azCode("ZH-HANS") != "zh-Hans" || azCode("PT-BR") != "pt" || azCode("EN-US") != "en" || azCode("ZH-HANT") != "zh-Hant" {
 		t.Error("azCode")
+	}
+}
+
+func TestDownloadSetup(t *testing.T) {
+	payload := []byte("MZ" + strings.Repeat("parley", 50000))
+	sum := sha256.Sum256(payload)
+	good := hex.EncodeToString(sum[:])
+	mux := http.NewServeMux()
+	mux.HandleFunc("/Parley-Setup.exe", func(w http.ResponseWriter, r *http.Request) { w.Write(payload) })
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	mux.HandleFunc("/latest", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"tag_name":"1.7.0","html_url":"x","assets":[` +
+			`{"name":"Parley-addon-1.6.0.zip","browser_download_url":"` + srv.URL + `/a.zip","size":5,"digest":"sha256:` + good + `"},` +
+			`{"name":"Parley-Setup.exe","browser_download_url":"` + srv.URL + `/Parley-Setup.exe","size":` + strconv.Itoa(len(payload)) + `,"digest":"sha256:` + good + `"}]}`))
+	})
+	t.Setenv("PARLEY_UPDATE_URL", srv.URL+"/latest")
+	r, err := latestRelease()
+	if err != nil || !r.canInstall() || r.SetupSHA256 != good || r.SetupSize != int64(len(payload)) {
+		t.Fatalf("%+v %v", r, err)
+	}
+	dir := t.TempDir()
+	var seen []int
+	p, err := downloadSetup(r, dir, func(pct int) { seen = append(seen, pct) })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b, _ := os.ReadFile(p); !bytes.Equal(b, payload) || filepath.Base(p) != "Parley-Setup-1.7.0.exe" {
+		t.Fatalf("bad file %s", p)
+	}
+	if len(seen) == 0 || seen[len(seen)-1] != 100 {
+		t.Errorf("progress %v", seen)
+	}
+
+	bad := r
+	bad.SetupSHA256 = strings.Repeat("0", 64)
+	if _, err := downloadSetup(bad, dir, nil); err == nil || !strings.Contains(err.Error(), "checksum") {
+		t.Errorf("tampered download accepted: %v", err)
+	}
+	short := r
+	short.SetupSize++
+	if _, err := downloadSetup(short, dir, nil); err == nil {
+		t.Error("short download accepted")
+	}
+	long := r
+	long.SetupSize--
+	if _, err := downloadSetup(long, dir, nil); err == nil {
+		t.Error("oversized download accepted")
+	}
+	if left, _ := filepath.Glob(filepath.Join(dir, "*.part")); len(left) != 0 {
+		t.Errorf("left behind %v", left)
+	}
+	none := r
+	none.SetupSHA256 = ""
+	if none.canInstall() {
+		t.Error("installable without a checksum")
+	}
+	if sanitizeVersion(`1.7.0\..\evil`) != "1.7.0.." {
+		t.Error(sanitizeVersion(`1.7.0\..\evil`))
 	}
 }

@@ -101,9 +101,19 @@ func main() {
 		return
 	}
 	// single instance
-	_, _, err := pCreateMutexW.Call(0, 0, u16p("Local\\ParleyTranslatorApp"))
-	if errno, ok := err.(syscall.Errno); ok && errno == 183 {
-		return
+	updated := len(os.Args) > 1 && os.Args[1] == "--updated" // started by the installer after an update
+	for try := 0; ; try++ {
+		h, _, err := pCreateMutexW.Call(0, 0, u16p("Local\\ParleyTranslatorApp"))
+		if errno, ok := err.(syscall.Errno); !ok || errno != 183 {
+			break
+		}
+		// Another Parley is running. Right after an update it's the old one
+		// still shutting down, so wait for it a little.
+		if !updated || try >= 40 {
+			return
+		}
+		pCloseHandle.Call(h)
+		time.Sleep(250 * time.Millisecond)
 	}
 	if pSetProcessDpiAwarenessContext.Find() == nil {
 		pSetProcessDpiAwarenessContext.Call(^uintptr(3)) // PER_MONITOR_AWARE_V2 (-4)
@@ -126,6 +136,9 @@ func main() {
 	pRegisterHotKey.Call(app.overlay, hotkeyID, MOD_CONTROL|MOD_SHIFT|MOD_NOREPEAT, 'T')
 	pRegisterHotKey.Call(app.overlay, voiceHotkeyID, MOD_CONTROL|MOD_SHIFT|MOD_NOREPEAT, 'Y')
 
+	if updated {
+		app.setNotice(Tf("Parley was updated to version %s.", appVersion))
+	}
 	go autoInstall()
 	go captureLoop()
 	go voiceLoop()
@@ -856,7 +869,15 @@ func trayMenu() {
 		items = append(items, MenuItem{Label: Tf("Unmute everyone (%d muted)", n), ID: cmdUnmuteAll, Tip: T("Show messages from everyone you muted again.")})
 	}
 	if app.update.Version != "" {
-		items = append([]MenuItem{items[0], {Label: Tf("Download Parley %s", app.update.Version), ID: cmdUpdateGet, Tip: T("Opens the download page for the new version.")}, {Sep: true}}, items[1:]...)
+		up := MenuItem{Label: Tf("Download Parley %s", app.update.Version), ID: cmdUpdateGet, Tip: T("Opens the download page for the new version.")}
+		if canSelfUpdate(app.update) {
+			up = MenuItem{Label: Tf("Update to Parley %s", app.update.Version), ID: cmdUpdateGet,
+				Tip: T("Downloads and installs the new version, then restarts Parley. Your settings are kept.")}
+		}
+		if updating.Load() {
+			up = MenuItem{Label: Tf("Updating to Parley %s…", app.update.Version), Disabled: true}
+		}
+		items = append([]MenuItem{items[0], up, {Sep: true}}, items[1:]...)
 	}
 	items = append(items, MenuItem{Sep: true}, MenuItem{Label: T("Quit Parley"), ID: cmdQuit})
 	pSetForegroundWindow.Call(app.overlay)
@@ -907,10 +928,12 @@ func runCommand(cmd int) {
 		saveConfig(cfg)
 	case cmdUpdateGet:
 		app.mu.Lock()
-		u := app.update.URL
+		r := app.update
 		app.mu.Unlock()
-		if u != "" {
-			openURL(u)
+		if canSelfUpdate(r) {
+			startUpdate(r)
+		} else if r.URL != "" {
+			openURL(r.URL)
 		}
 	case cmdModelsFolder:
 		os.MkdirAll(app.off.Dir, 0o755)

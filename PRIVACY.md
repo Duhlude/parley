@@ -12,6 +12,7 @@ Parley has no servers, accounts, analytics or telemetry. Everything runs on your
 | Text of replies you ask Parley to translate | **DeepL** | **Only with the DeepL engine**, when you press Enter or finish a voice reply |
 | Text of non-English chat messages and your replies | **Microsoft Azure Translator** (api.cognitive.microsofttranslator.com), using **your** key | **Only if you choose the Azure engine** |
 | Nothing (a normal web request, no personal data) | **GitHub** (api.github.com) | When Parley opens and every few hours after, to see whether a newer Parley exists. Turn it off under tray icon → Check for updates |
+| Nothing (download only) | **GitHub** (github.com release downloads) | Only when you click **Update to Parley x.y.z**: the new installer is downloaded and checked against GitHub's published checksum |
 
 With the default **offline** engine, chat text never leaves your PC: messages are translated on your computer by `parley-mt.exe`. With DeepL, the sender's name and channel are **not** sent, only the message text, and English messages are filtered out on your PC first. If DeepL fails (no internet, allowance used up), Parley translates that message offline instead.
 
