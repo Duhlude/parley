@@ -81,6 +81,9 @@ OPTIONAL
     DeepL API", then in Parley's Settings choose "DeepL" as the
     translation engine and paste the key. If DeepL fails (no internet,
     allowance used up), Parley falls back to offline automatically.
+  - Azure Translator (very good, 2 million free characters a month):
+    create a free Translator resource in the Azure portal, then choose
+    "Azure" in Parley's Settings and paste its key and region.
   - Voice replies: click the microphone in the reply box, or press
     Ctrl+Shift+Y. The first time, Parley downloads a speech model
     (466 MB "Accurate" or 148 MB "Fast"; choose under tray icon >
@@ -89,6 +92,13 @@ OPTIONAL
   - WoW fonts for the WoW skins: if you have Friz Quadrata
     (FRIZQT__.TTF), put it in a "fonts" folder next to Parley.exe.
     Fonts are not included because they are licensed.
+
+
+UPDATING
+--------
+  When a new version is out, the Parley overlay says so. Right-click the
+  tray icon and choose "Update to Parley x.y.z": Parley downloads it,
+  checks it, installs it and restarts itself. Settings are kept.
 
 
 UNINSTALL

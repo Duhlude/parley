@@ -14,6 +14,8 @@ Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Pa
 
 ![Parley translating Brazilian Portuguese chat](assets/screenshots/01_overlay_live.png)
 
+![Replying: type in English, Parley translates it and shows it translated back](assets/screenshots/02_reply.png)
+
 ## Features
 
 - **No account needed**: Parley translates **offline, on your PC**, with the same open translation models Firefox uses. Nothing to sign up for, no limits, and chat never leaves your computer. Each language downloads once (about 50 MB) the first time someone uses it.
@@ -53,7 +55,7 @@ The full explanation is in [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 
 - Windows 10 or 11 (64-bit)
 - World of Warcraft **Classic Era** (or, in beta, **Anniversary**, **Mists of Pandaria Classic** or **Retail**) in **Windowed (Fullscreen)** display mode. Parley installs the addon into each one it finds
-- That's it. A DeepL API key is optional.
+- That's it. An online translation key (DeepL or Azure) is optional.
 
 ## Performance & what it reads
 

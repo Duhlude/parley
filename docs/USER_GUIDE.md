@@ -14,11 +14,15 @@ Tray icon: **left-click** shows or hides the overlay. **Right-click** opens the 
 
 ## Message menu (right-click)
 
+![Right-clicking a message: copy, conversation view, reply and mute](../assets/screenshots/03_message_menu.png)
+
 Right-click any message for:
 
 - **Copy translation** / **Copy original**
 - **Reply to …**: selects the sender and puts the cursor in the reply box.
 - **Conversation with …**: shows only that player's messages and your replies to them, as one conversation, and makes your next reply go to them. Handy for a long back-and-forth in whispers while Trade chat keeps scrolling. Click the bar at the top (or **Show all messages** in this menu) to see everything again.
+
+![Conversation view: only Larissa's whispers and your replies](../assets/screenshots/07_conversation.png)
 - **Mute …**: hides everything that player sends from now on (gold sellers, spammers). Undo with tray icon → **Unmute everyone**.
 
 ## Click-through overlay
@@ -30,6 +34,8 @@ Tray icon → **Click-through overlay**: the overlay stays visible but mouse cli
 Translated messages and your replies are saved to a daily text file in `%APPDATA%\Parley\history` (one file per day), so you can look up what someone said later. Tray icon → **Chat history** opens the folder or turns saving off.
 
 ## Replying
+
+![Typing a reply, then the translated reply with its back-translation](../assets/screenshots/02_reply.png)
 
 1. **Click the message** you want to answer. The line above the reply box shows where your reply goes, e.g. *To Carlos (whisper)* or *To 4. LookingForGroup channel, answering Иван*. Click the message again, or the ✕, to clear it.
 2. **Type your reply** in your own language and press **Enter**. From anywhere, **Ctrl+Shift+T** jumps to the reply box.
@@ -164,6 +170,8 @@ WoW's fonts aren't included because they're licensed. If you have Friz Quadrata 
 
 ## Settings
 
+![The settings window](../assets/screenshots/05_settings.png)
+
 | Setting | |
 |---|---|
 | Translation engine | Offline (default), DeepL or Azure, see above |
@@ -177,7 +185,7 @@ WoW's fonts aren't included because they're licensed. If you have Friz Quadrata 
 | Never translate these names or words | Guild names, nicknames and other words Parley leaves as written, comma-separated |
 | Show the original text | Shows the untranslated message under each translation |
 
-Settings live in `%APPDATA%\Parley\settings.json`.
+Settings live in `%APPDATA%\Parley\settings.json`, with a copy of the last good version in `settings.json.bak`.
 
 ## Troubleshooting
 

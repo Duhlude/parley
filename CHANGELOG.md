@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Docs
+- New screenshots for replies with the back-translation check, the conversation view, the message menu and the settings window.
+- INSTALL.txt covers Azure and one-click updates; the CurseForge description opens with a clear use-at-your-own-risk note.
+
 ## App 1.9.1 (2026-09-30)
 
 ### Changed
