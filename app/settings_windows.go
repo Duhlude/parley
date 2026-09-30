@@ -24,6 +24,7 @@ const (
 	idUILang
 	idRegion
 	idAlert
+	idKeepWords
 )
 
 const msgUsage = WM_APP + 20
@@ -239,7 +240,7 @@ func openSettings() {
 		setBrushBg, _, _ = pCreateSolidBrush.Call(colBg)
 		setBrushField, _, _ = pCreateSolidBrush.Call(colField)
 	}
-	W, H := sc(480), sc(670)
+	W, H := sc(480), sc(720)
 	sw, _, _ := pGetSystemMetrics.Call(0)
 	shh, _, _ := pGetSystemMetrics.Call(1)
 	h, _, _ := pCreateWindowExW.Call(WS_EX_TOPMOST|WS_EX_CONTROLPARENT, uintptr(unsafe.Pointer(cls)),
@@ -410,7 +411,7 @@ func buildSettings(h, inst uintptr) {
 	ctl(idUILang, "BUTTON", BS_OWNERDRAW, pad, fullW, "")
 	y += rowH + sc(12)
 
-	label(T("WoW folder (Classic Era or Retail)"), false)
+	label(T("WoW folder"), false)
 	edit(idWow, 0, pad, fullW-btnW-sc(8), c.WowPath)
 	ctl(idInstall, "BUTTON", BS_OWNERDRAW, pad+fullW-btnW, btnW, T("Install addon"))
 	y += rowH + sc(12)
@@ -428,6 +429,11 @@ func buildSettings(h, inst uintptr) {
 	label(T("Alert me when a message mentions (your character is included)"), false)
 	edit(idAlert, 0, pad, fullW, c.AlertWords)
 	pSendMessageW.Call(setCtl[idAlert], 0x1501, 1, uintptr(unsafe.Pointer(u16(T("e.g. Deadmines, healer, WTB")))))
+	y += rowH + sc(12)
+
+	label(T("Never translate these names or words"), false)
+	edit(idKeepWords, 0, pad, fullW, c.KeepWords)
+	pSendMessageW.Call(setCtl[idKeepWords], 0x1501, 1, uintptr(unsafe.Pointer(u16(T("e.g. your guild name, nicknames")))))
 	y += rowH + sc(12)
 
 	setOrigOn = c.ShowOriginal
@@ -624,6 +630,7 @@ func saveSettings() {
 	}
 	key, azKey, region := setKeyDeepL, setKeyAzure, setRegion
 	alertWords := strings.TrimSpace(getText(setCtl[idAlert]))
+	keepWords := strings.TrimSpace(getText(setCtl[idKeepWords]))
 	sel := setLangSel
 	fontSize, _ := strconv.Atoi(getText(setCtl[idFont]))
 	opacity, _ := strconv.Atoi(getText(setCtl[idOpacity]))
@@ -639,6 +646,7 @@ func saveSettings() {
 	app.cfg.AzureKeyEnc = protect([]byte(azKey))
 	app.cfg.AzureRegion = region
 	app.cfg.AlertWords = alertWords
+	app.cfg.KeepWords = keepWords
 	if sel >= 0 && sel < len(targetLangs) {
 		app.cfg.MyLang = targetLangs[sel].Code
 	}
@@ -666,6 +674,7 @@ func saveSettings() {
 	app.mu.Unlock()
 
 	saveConfig(cfg)
+	setKeepWords(cfg.KeepWords)
 	if uiChanged {
 		setUILang(cfg.UILang)
 		app.mu.Lock()

@@ -120,6 +120,7 @@ func main() {
 	}
 
 	app.cfg = loadConfig()
+	setKeepWords(app.cfg.KeepWords)
 	setUILang(app.cfg.UILang)
 	app.key = string(unprotect(app.cfg.DeepLKeyEnc))
 	app.azKey = string(unprotect(app.cfg.AzureKeyEnc))

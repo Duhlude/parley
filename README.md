@@ -22,6 +22,7 @@ Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Pa
 - **Only what you need**: English chat is filtered out for free. An in-game settings window (`/parley` or the minimap button) has one-click presets like *Friends & group* or *Group only*, per-chat-type switches, and your own saved presets.
 - **Reply in their language**: click a message, type in English, press Enter. Parley translates it, adds the right chat command (`/w Name`, `/p`, `/4` …) and copies it. You paste it into WoW yourself.
 - **Quick replies**: one click for *Invite me, please*, *Thanks for the group!*, *One moment* and more, already translated into nine languages.
+- **Your names stay yours**: list your guild name, nicknames or inside jokes and Parley never translates them. WoW zones, dungeons and raids from Classic, The Burning Crusade and Mists of Pandaria are shown by the name your own client uses.
 - **Alerts**: messages that mention your character or words you pick (*Deadmines*, *WTB*, *healer*) are highlighted with a soft sound.
 - **Auto-hide**: the overlay can fade away when chat is quiet and come back the moment someone writes.
 - **Handy extras**: right-click a message to copy it, reply, or mute a spammer; a click-through mode so the overlay never catches a stray click; a daily chat-history file, and one-click updates when a new version is out.

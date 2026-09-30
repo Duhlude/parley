@@ -47,6 +47,12 @@ The speech-bubble button next to the microphone opens ready-made replies: *Invit
 
 Messages that mention **your character** or one of your **alert words** get an orange bar and a soft Windows notification sound. Set the words under Settings → **Alert me when a message mentions**, separated by commas (e.g. `Deadmines, healer, WTB`). Your character's name is added automatically once the addon has told the app who you're playing. Turn the sound off under tray icon → **Alert sound**.
 
+## Names Parley never translates
+
+Guild names, nicknames and inside jokes often *look* like ordinary words, so a translator turns "Sombra Eterna" into "Eternal Shadow". List them under Settings → **Never translate these names or words**, separated by commas, and Parley leaves them exactly as written, both in the messages you read and in your replies, with every engine.
+
+WoW place names are handled for you: Parley knows the zones, dungeons and raids of Classic, The Burning Crusade and Mists of Pandaria in every WoW language, and shows each one by the name *your* client uses (a Brazilian "Muralha Fogo do Inferno" reads as "Hellfire Ramparts").
+
 ## Auto-hide
 
 Tray icon → **Auto-hide overlay** → pick a delay (10 seconds to 2 minutes). When no new foreign chat has arrived for that long, the overlay fades out and gets out of the way completely: it doesn't block your screen or catch clicks. It fades back in when:
@@ -81,7 +87,7 @@ Choose under Settings → **Translation engine**.
   - Two non-English languages (say Russian → Portuguese) are translated through English in two steps.
   - Quality is good for full sentences; heavy slang can come out rougher than DeepL. Parley expands common shorthand first to help.
 - **Azure Translator** (Microsoft): 2 million characters a month free, then pay-as-you-go. Create a free Translator resource in the Azure portal ([how](https://learn.microsoft.com/azure/ai-services/translator/create-translator-resource)), then paste its key and region (for example `westeurope`; use `global` if your resource is global) in Settings. Stronger than offline for Chinese, Japanese and Korean. If Azure fails, Parley translates that message offline instead.
-- **DeepL**: the best quality, but you need a DeepL API account and key. If DeepL is unreachable, rejects the key or runs out of characters, Parley translates that message offline instead. Settings shows how many DeepL characters you've used, and Parley warns you at 90%.
+- **DeepL**: the best quality, but you need a DeepL API account and key. New DeepL API accounts get the *Developer* plan: 1 million characters **in total**, which doesn't renew; after that DeepL's paid *Growth* plan is needed. (Older *API Free* accounts keep 500,000 characters a month.) For free translation that lasts, use Azure or offline. If DeepL is unreachable, rejects the key or runs out of characters, Parley translates that message offline instead. Settings shows how many DeepL characters you've used, and Parley warns you at 90%.
 
 You can also switch engines from the tray icon → **Translation**. The same menu has **Download a language now**, which fetches a language ahead of time so the first message isn't delayed, and a link to the models folder with its size. If you read chat in a language other than English, Parley downloads that language automatically.
 
@@ -163,6 +169,7 @@ WoW's fonts aren't included because they're licensed. If you have Friz Quadrata 
 | WoW folder | Your `_classic_era_`, `_anniversary_`, `_classic_` (Mists of Pandaria) or `_retail_` folder, detected automatically. **Install addon** copies the addon into it and into every other WoW version installed next to it |
 | Text size / Overlay opacity | Appearance |
 | Alert me when a message mentions | Words that get a message highlighted (and a sound), comma-separated. Your character is included automatically |
+| Never translate these names or words | Guild names, nicknames and other words Parley leaves as written, comma-separated |
 | Show the original text | Shows the untranslated message under each translation |
 
 Settings live in `%APPDATA%\Parley\settings.json`.

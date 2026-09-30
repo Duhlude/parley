@@ -330,6 +330,7 @@ func toHTML(s string) string {
 	esc := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(s) // keep ' and " as-is: the model reads them better
 	esc = htmlBracketRe.ReplaceAllStringFunc(esc, func(m string) string { return "<code>" + m + "</code>" })
 	esc = keepRe.ReplaceAllString(esc, "<code>$1</code>")
+	esc = lockRe.ReplaceAllString(esc, "<code>$1</code>")
 	return jargonRe.ReplaceAllStringFunc(esc, func(m string) string {
 		if strings.HasPrefix(m, "code") { // never inside a tag we just added
 			return m

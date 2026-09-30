@@ -33,6 +33,7 @@ type Config struct {
 	AzureKeyEnc  []byte   `json:"azureKeyEnc,omitempty"` // DPAPI-encrypted
 	AzureRegion  string   `json:"azureRegion,omitempty"`
 	AlertWords   string   `json:"alertWords,omitempty"`  // comma-separated; the character name is added automatically
+	KeepWords    string   `json:"keepWords,omitempty"`   // comma-separated names and terms never translated
 	AlertSound   string   `json:"alertSound,omitempty"`  // ""/on, "off"
 	CharName     string   `json:"charName,omitempty"`    // last character the addon reported
 	UpdateCheck  string   `json:"updateCheck,omitempty"` // ""/on, "off"

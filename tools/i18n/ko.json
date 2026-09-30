@@ -155,7 +155,6 @@
  "the offline translator isn't installed; reinstall Parley": "오프라인 번역기가 설치되어 있지 않습니다. Parley를 다시 설치하세요",
  "the offline translator keeps crashing; see Parley's voice/engine log": "오프라인 번역기가 계속 멈춥니다. Parley 로그를 확인하세요",
  "set your WoW folder first": "먼저 WoW 폴더를 지정하세요",
- "WoW folder (Classic Era or Retail)": "WoW 폴더 (클래식 시대 또는 본섭)",
  "Blizzard hides chat from addons during Mythic+ keys, PvP matches and boss fights. Parley picks it back up afterwards.": "Blizzard는 쐐기돌 던전, PvP 경기, 우두머리 전투 중에는 애드온이 채팅을 읽지 못하게 합니다. 끝나면 Parley가 다시 번역합니다.",
  "Alert sound": "알림 소리",
  "Check for updates": "업데이트 확인",
@@ -248,5 +247,9 @@
  "Downloading Parley %s…": "Parley %s 다운로드 중…",
  "Downloading Parley %s… %d%%": "Parley %s 다운로드 중… %d%%",
  "Installing Parley %s…": "Parley %s 설치 중…",
- "Couldn't install the update automatically, so its download page is opening instead.": "업데이트를 자동으로 설치하지 못해 다운로드 페이지를 엽니다."
+ "Couldn't install the update automatically, so its download page is opening instead.": "업데이트를 자동으로 설치하지 못해 다운로드 페이지를 엽니다.",
+ "WoW folder": "WoW 폴더",
+ "Never translate these names or words": "번역하지 않을 이름이나 단어",
+ "e.g. your guild name, nicknames": "예: 길드 이름, 별명",
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Parley가 메시지와 답장에서 그대로 두는 이름과 단어입니다. 길드 이름, 별명, 친구끼리 쓰는 말 등. 쉼표로 구분하세요."
 }

@@ -155,7 +155,6 @@
  "the offline translator isn't installed; reinstall Parley": "офлайн-переводчик не установлен; переустановите Parley",
  "the offline translator keeps crashing; see Parley's voice/engine log": "офлайн-переводчик постоянно падает; см. журнал Parley",
  "set your WoW folder first": "сначала укажите папку WoW",
- "WoW folder (Classic Era or Retail)": "Папка WoW (Classic Era или Retail)",
  "Blizzard hides chat from addons during Mythic+ keys, PvP matches and boss fights. Parley picks it back up afterwards.": "Blizzard скрывает чат от аддонов во время эпохальных+ ключей, PvP-матчей и боёв с боссами. Parley продолжит после этого.",
  "Alert sound": "Звук оповещения",
  "Check for updates": "Проверять обновления",
@@ -248,5 +247,9 @@
  "Downloading Parley %s…": "Загрузка Parley %s…",
  "Downloading Parley %s… %d%%": "Загрузка Parley %s… %d%%",
  "Installing Parley %s…": "Установка Parley %s…",
- "Couldn't install the update automatically, so its download page is opening instead.": "Не удалось установить обновление автоматически, поэтому открывается страница загрузки."
+ "Couldn't install the update automatically, so its download page is opening instead.": "Не удалось установить обновление автоматически, поэтому открывается страница загрузки.",
+ "WoW folder": "Папка WoW",
+ "Never translate these names or words": "Никогда не переводить эти имена и слова",
+ "e.g. your guild name, nicknames": "например, название гильдии, прозвища",
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Имена и слова, которые Parley оставляет как есть — в сообщениях и в ваших ответах: название гильдии, прозвища, свои шутки. Разделяйте запятыми."
 }

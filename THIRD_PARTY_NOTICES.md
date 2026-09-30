@@ -22,6 +22,9 @@ Chat shortcuts and WoW term explanations in many languages, taken from the data 
 - **BabelChat** by Andrey Yumashev: https://github.com/Yumash/BabelChat (MIT, © 2025-2026 Andrey Yumashev). License: `third_party/BabelChat-LICENSE.txt`.
 - **WoW Translator** by Pirson: https://github.com/Pirson-s-Addons/WoW-Translator (MIT, © 2026 Pirson). License: `third_party/WoW-Translator-LICENSE.txt`.
 
+### Localized place names (`app/terms.go`)
+The Burning Crusade and Mists of Pandaria zone, dungeon and raid names in each WoW language were taken from **LibBabble-SubZone-3.0** (maintainers arith and dynaletik; MIT, per its TOC). The names themselves are Blizzard Entertainment's in-game names.
+
 ## Downloaded on first use (not included)
 
 ### Whisper speech models (`ggml-small.en.bin`, `ggml-base.en.bin`, …)

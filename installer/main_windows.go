@@ -24,7 +24,7 @@ import (
 //go:embed payload
 var payload embed.FS
 
-const version = "1.7.0"
+const version = "1.8.0"
 
 // wowFlavors: the WoW game folders Parley installs its addon into (keep in
 // step with app/config.go).

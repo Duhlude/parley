@@ -238,6 +238,8 @@ func settingsTipText(id int) string {
 		return T("Size of the chat text in the overlay.")
 	case idOpacity:
 		return T("How see-through the overlay is. 100 is solid.")
+	case idKeepWords:
+		return T("Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.")
 	case idAlert:
 		return T("Messages that mention these words, or your character, get an orange bar and a soft sound. Separate words with commas.")
 	case idOrig:

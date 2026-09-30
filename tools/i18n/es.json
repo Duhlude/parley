@@ -155,7 +155,6 @@
  "the offline translator isn't installed; reinstall Parley": "el traductor sin conexión no está instalado; reinstala Parley",
  "the offline translator keeps crashing; see Parley's voice/engine log": "el traductor sin conexión falla una y otra vez; revisa el registro de Parley",
  "set your WoW folder first": "indica primero tu carpeta de WoW",
- "WoW folder (Classic Era or Retail)": "Carpeta de WoW (Classic Era o Retail)",
  "Blizzard hides chat from addons during Mythic+ keys, PvP matches and boss fights. Parley picks it back up afterwards.": "Blizzard oculta el chat a los addons durante piedras míticas+, partidas JcJ y combates contra jefes. Parley sigue después.",
  "Alert sound": "Sonido de aviso",
  "Check for updates": "Buscar actualizaciones",
@@ -248,5 +247,9 @@
  "Downloading Parley %s…": "Descargando Parley %s…",
  "Downloading Parley %s… %d%%": "Descargando Parley %s… %d%%",
  "Installing Parley %s…": "Instalando Parley %s…",
- "Couldn't install the update automatically, so its download page is opening instead.": "No se pudo instalar la actualización automáticamente, así que se abrirá su página de descarga."
+ "Couldn't install the update automatically, so its download page is opening instead.": "No se pudo instalar la actualización automáticamente, así que se abrirá su página de descarga.",
+ "WoW folder": "Carpeta de WoW",
+ "Never translate these names or words": "No traducir nunca estos nombres o palabras",
+ "e.g. your guild name, nicknames": "p. ej. el nombre de tu hermandad, apodos",
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Nombres y palabras que Parley deja tal cual, en los mensajes y en tus respuestas: el nombre de tu hermandad, apodos, bromas internas. Sepáralos con comas."
 }

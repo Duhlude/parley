@@ -60,8 +60,9 @@ func azCode(code string) string {
 var azNoTagRe = regexp.MustCompile(`</?span[^>]*>`)
 
 func toAzureHTML(s, target string) string {
-	esc := html.EscapeString(stripKeep(s))
+	esc := html.EscapeString(keepRe.ReplaceAllString(s, "$1"))
 	wrap := func(m string) string { return `<span translate="no">` + m + `</span>` }
+	esc = lockRe.ReplaceAllString(esc, `<span translate="no">$1</span>`) // the player's own words
 	esc = bracketRe.ReplaceAllStringFunc(esc, wrap)
 	if baseLang(target) == "EN" {
 		return esc

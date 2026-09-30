@@ -1,5 +1,14 @@
 # Changelog
 
+## App 1.8.0 (2026-09-30)
+
+### Added
+- **Never-translate list.** Settings → *Never translate these names or words*: guild names, nicknames and other words Parley leaves exactly as written, in messages and replies, with every engine.
+- **Burning Crusade and Mists of Pandaria place names.** About 60 zones, cities, dungeons and raids (Shattrath, Karazhan, Hellfire Ramparts, Temple of the Jade Serpent, Siege of Orgrimmar…) are recognised in every WoW language and shown by the name your client uses, like the Classic ones already were. Names from the game's own localizations (via LibBabble-SubZone-3.0). Place-name matching is also much faster.
+
+### Changed
+- Settings: the WoW folder label no longer says "Classic Era or Retail", since any supported version works.
+
 ## App 1.7.0 · Addon 1.6.0 (2026-09-29)
 
 ### Added

@@ -38,7 +38,8 @@ var bracketRe = regexp.MustCompile(`\[[^\[\]]{1,80}\]`)
 // text: DeepL keeps proper names on its own, and tagging them makes it add
 // quotes ("Deadmines") or drop the space before them.
 func toXML(s, target string) string {
-	esc := html.EscapeString(stripKeep(s))
+	esc := html.EscapeString(keepRe.ReplaceAllString(s, "$1"))
+	esc = lockRe.ReplaceAllString(esc, "<x>$1</x>") // the player's own words: never translated
 	esc = bracketRe.ReplaceAllStringFunc(esc, func(m string) string { return "<x>" + m + "</x>" })
 	if baseLang(target) == "EN" {
 		return esc // the jargon is English already; tagging it only adds quotes

@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestLocalizePlaces(t *testing.T) {
 	cases := []struct{ in, target, want string }{
@@ -17,6 +20,17 @@ func TestLocalizePlaces(t *testing.T) {
 		{"meet me in Ironforge", "ZH-HANT", "meet me in \x02鐵爐堡\x03"},
 		{"Forjazmente", "EN-US", "Forjazmente"}, // not a whole word
 		{"nothing here", "PT-BR", "nothing here"},
+		// Burning Crusade and Mists of Pandaria
+		{"bora Karazhan hoje? preciso de tank", "EN-US", "bora \x02Karazhan\x03 hoje? preciso de tank"},
+		{"alguém pra Muralha Fogo do Inferno?", "EN-US", "alguém pra \x02Hellfire Ramparts\x03?"},
+		{"suche Gruppe für den Schwarzen Tempel", "EN-US", "suche Gruppe für den \x02Black Temple\x03"},
+		{"кто в Каражан? нужен хил", "EN-US", "кто в \x02Karazhan\x03? нужен хил"},
+		{"LFM Siege of Orgrimmar", "DE", "LFM \x02Schlacht um Orgrimmar\x03"},
+		{"meet at Shattrath", "PT-BR", "meet at \x02Shattrath City\x03"},
+		{"on va au Temple du Serpent de jade ?", "EN-US", "on va au \x02Temple of the Jade Serpent\x03 ?"},
+		{"青龙寺来人", "EN-US", "\x02Temple of the Jade Serpent\x03来人"},
+		{"meet in the Vale of Eternal Blossoms", "KO", "meet in the \x02영원꽃 골짜기\x03"},
+		{"who's in Outland?", "RU", "who's in \x02Запределье\x03?"},
 	}
 	for _, c := range cases {
 		if got := localizePlaces(c.in, c.target); got != c.want {
@@ -48,5 +62,44 @@ func TestLocalizeRoleVerbs(t *testing.T) {
 func TestFromXMLGlue(t *testing.T) {
 	if got := fromXML("look in<x>[Linen Cloth]</x>now"); got != "look in [Linen Cloth] now" {
 		t.Errorf("fromXML glue: %q", got)
+	}
+}
+
+func TestKeepWords(t *testing.T) {
+	defer setKeepWords("")
+	setKeepWords("Sombra Eterna, Bob; 暗影 , ,Bob")
+	if got := keepWordList("Sombra Eterna, Bob; 暗影 , ,Bob"); len(got) != 3 {
+		t.Errorf("list %q", got)
+	}
+	cases := []struct{ in, want string }{
+		{"entrem na sombra eterna, galera", "entrem na \x04sombra eterna\x05, galera"},
+		{"Sombra  Eterna recruta!", "\x04Sombra  Eterna\x05 recruta!"},
+		{"Bob e Bobby vão", "\x04Bob\x05 e Bobby vão"},
+		{"欢迎加入暗影公会", "欢迎加入\x04暗影\x05公会"},
+		{"nada aqui", "nada aqui"},
+	}
+	for _, c := range cases {
+		if got := prepareIncoming(c.in, "EN-US"); got != c.want {
+			t.Errorf("prepareIncoming(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+	// a place name already marked isn't locked again
+	setKeepWords("Ventobravo")
+	if got := prepareIncoming("vamos pra Ventobravo", "EN-US"); got != "vamos pra \x02Stormwind\x03" {
+		t.Errorf("place: %q", got)
+	}
+	setKeepWords("Sombra Eterna")
+	in := prepareReply("join Sombra Eterna, we raid", "PT-BR")
+	if stripKeep(in) != "join Sombra Eterna, we raid" {
+		t.Errorf("strip %q", stripKeep(in))
+	}
+	if x := toXML(in, "EN-US"); x != "join <x>Sombra Eterna</x>, we <x>raid</x>" && x != "join <x>Sombra Eterna</x>, we raid" {
+		t.Errorf("toXML %q", x)
+	}
+	if h := toHTML(in); !strings.Contains(h, "<code>Sombra Eterna</code>") {
+		t.Errorf("toHTML %q", h)
+	}
+	if a := toAzureHTML(in, "PT-BR"); !strings.Contains(a, `<span translate="no">Sombra Eterna</span>`) {
+		t.Errorf("azure %q", a)
 	}
 }

@@ -155,7 +155,6 @@
  "the offline translator isn't installed; reinstall Parley": "未安装离线翻译器，请重新安装 Parley",
  "the offline translator keeps crashing; see Parley's voice/engine log": "离线翻译器反复崩溃，请查看 Parley 日志",
  "set your WoW folder first": "请先设置魔兽世界文件夹",
- "WoW folder (Classic Era or Retail)": "魔兽世界文件夹（经典旧世或正式服）",
  "Blizzard hides chat from addons during Mythic+ keys, PvP matches and boss fights. Parley picks it back up afterwards.": "在史诗钥石、PvP 比赛和首领战期间，暴雪不允许插件读取聊天。结束后 Parley 会继续翻译。",
  "Alert sound": "提醒音",
  "Check for updates": "检查更新",
@@ -248,5 +247,9 @@
  "Downloading Parley %s…": "正在下载 Parley %s…",
  "Downloading Parley %s… %d%%": "正在下载 Parley %s… %d%%",
  "Installing Parley %s…": "正在安装 Parley %s…",
- "Couldn't install the update automatically, so its download page is opening instead.": "无法自动安装更新，将打开下载页面。"
+ "Couldn't install the update automatically, so its download page is opening instead.": "无法自动安装更新，将打开下载页面。",
+ "WoW folder": "WoW 文件夹",
+ "Never translate these names or words": "永不翻译这些名字或词语",
+ "e.g. your guild name, nicknames": "例如：公会名、昵称",
+ "Names and words Parley leaves exactly as written, in messages and in your replies: your guild's name, nicknames, inside jokes. Separate them with commas.": "Parley 在消息和你的回复中都会原样保留的名字和词语：公会名、昵称、圈内梗等。用逗号分隔。"
 }
