@@ -13,7 +13,7 @@ time a language is needed and keeps them in `%APPDATA%\Parley\models\translate`.
 
 `build-engine.sh` cross-compiles it on Linux with MinGW-w64 (posix threads). It fetches the
 pinned sources, applies `bergamot-mingw.patch` (MinGW fixes: aligned allocation, header case,
-no `-Werror`, no git revision step) and writes `parley-mt.exe` to the project root.
+no `-Werror`, no git revision step) and writes `bin/parley-mt.exe`.
 
 ```
 sudo apt install cmake ninja-build g++-mingw-w64-x86-64-posix curl

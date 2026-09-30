@@ -4,7 +4,7 @@ BabelChat (Andrey Yumashev) and WoW Translator (Pirson).
 
 Input: all.json, a flat dump of their addon/Data/*.lua tables
 (one object per term: {"src", "key", "<locale>": "<text>", ...}).
-Usage: python3 tools/gen_slang.py all.json > slangdata.go
+Usage: python3 tools/gen_slang.py all.json > app/slangdata.go
 """
 import json, sys
 

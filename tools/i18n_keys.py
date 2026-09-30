@@ -7,7 +7,7 @@ def add(k):
     k = bytes(k, "utf-8").decode("unicode_escape").encode("latin-1").decode("utf-8")
     if k not in keys:
         keys.append(k)
-for p in sorted(glob.glob(os.path.join(ROOT, "*.go"))):
+for p in sorted(glob.glob(os.path.join(ROOT, "app", "*.go"))):
     if p.endswith("_test.go") or os.path.basename(p).startswith("i18n_data"):
         continue
     s = open(p, encoding="utf-8").read()

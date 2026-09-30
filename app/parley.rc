@@ -1,7 +1,7 @@
 // Windows resources for Parley.exe (icons + version info).
 // Rebuild rsrc_windows_amd64.syso after changing: see docs/BUILDING.md.
-1 ICON "assets/logo/parley.ico"
-2 ICON "assets/logo/parley-bubbles.ico"
+1 ICON "../assets/logo/parley.ico"
+2 ICON "../assets/logo/parley-bubbles.ico"
 
 1 VERSIONINFO
 FILEVERSION 1,6,0,0

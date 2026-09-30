@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"encoding/json"
 	"errors"
 	"io/fs"
@@ -9,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"parley/addon"
 )
 
 type Config struct {
@@ -93,8 +94,7 @@ func saveConfig(c Config) error {
 	return os.Rename(tmp, filepath.Join(configDir(), "settings.json"))
 }
 
-//go:embed addon/Parley
-var addonFS embed.FS
+var addonFS = addon.FS
 
 // installAddon copies the embedded addon into <wowPath>\Interface\AddOns\Parley.
 func installAddon(wowPath string) (string, error) {
@@ -109,7 +109,7 @@ func installAddon(wowPath string) (string, error) {
 	if err := os.MkdirAll(dest, 0o755); err != nil {
 		return "", err
 	}
-	err := fs.WalkDir(addonFS, "addon/Parley", func(p string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(addonFS, "Parley", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
@@ -117,7 +117,7 @@ func installAddon(wowPath string) (string, error) {
 		if err != nil {
 			return err
 		}
-		out := filepath.Join(dest, filepath.FromSlash(strings.TrimPrefix(p, "addon/Parley/")))
+		out := filepath.Join(dest, filepath.FromSlash(strings.TrimPrefix(p, "Parley/")))
 		if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
 			return err
 		}
@@ -189,7 +189,7 @@ func addonInstalledVersion(wowPath string) string {
 }
 
 func embeddedAddonVersion() string {
-	b, _ := addonFS.ReadFile("addon/Parley/Parley.toc")
+	b, _ := addonFS.ReadFile("Parley/Parley.toc")
 	return tocVersion(string(b))
 }
 

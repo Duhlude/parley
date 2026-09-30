@@ -36,16 +36,21 @@ type procEngine struct {
 const idleAfter = 10 * time.Minute
 
 // engineExe finds parley-mt.exe next to Parley.exe.
-func engineExe() string {
+func engineExe() string { return helperExe("parley-mt.exe") }
+
+// helperExe finds a bundled helper next to Parley.exe (installed copy) or in
+// bin\ beside it (a build from the repository root). "" if missing.
+func helperExe(name string) string {
 	exe, err := os.Executable()
 	if err != nil {
 		return ""
 	}
-	p := filepath.Join(filepath.Dir(exe), "parley-mt.exe")
-	if _, err := os.Stat(p); err != nil {
-		return ""
+	for _, p := range []string{filepath.Join(filepath.Dir(exe), name), filepath.Join(filepath.Dir(exe), "bin", name)} {
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
 	}
-	return p
+	return ""
 }
 
 func (e *procEngine) start() error {

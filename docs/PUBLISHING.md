@@ -19,7 +19,7 @@
 - [x] No Blizzard art, icons or fonts are included. Skins are drawn in code.
 - [x] Friz Quadrata is **not** distributed. `fonts/` is git-ignored; don't upload it anywhere.
 - [x] Trademark disclaimer is in the README and THIRD_PARTY_NOTICES.
-- [x] whisper.cpp MIT license included (`whisper-cli-LICENSE.txt`).
+- [x] whisper.cpp MIT license included (`bin/whisper-cli-LICENSE.txt`).
 - [x] The name "Parley" doesn't use "WoW" or "Warcraft". Keep the game name out of the project title; CurseForge asks for this too.
 
 **Privacy.** By default translation is offline and chat text never leaves the PC; PRIVACY.md lists the model downloads from Mozilla and what goes to DeepL if a user opts into it. Parley itself collects nothing.
@@ -42,7 +42,7 @@
 
 `.github/workflows/release.yml` builds and publishes releases on GitHub, so nothing needs uploading by hand:
 
-1. Bump `appVersion` in `version.go` and `const version` in `installer/main_windows.go` (and the two `.rc` files, then re-run windres), plus the addon's `## Version` if the addon changed. Update CHANGELOG.
+1. Bump `appVersion` in `app/version.go` and `const version` in `installer/main_windows.go` (and the two `.rc` files, then re-run windres), plus the addon's `## Version` if the addon changed. Update CHANGELOG.
 2. Write the release notes in `docs/release-notes/<version>.md` (e.g. `1.6.0.md`).
 3. Commit and push in GitHub Desktop.
 4. Tag that commit with the version (GitHub Desktop: History → right-click the commit → **Create Tag…** → `1.6.0`), then **Push origin** again so the tag goes up.
@@ -60,7 +60,7 @@ GitHub then runs the tests, builds `Parley-Setup.exe` and `Parley-addon-<version
 
 ## Before every release
 
-- [ ] `go test .` passes
+- [ ] `go test ./...` passes
 - [ ] Addon `## Version` bumped if the addon changed
 - [ ] `const version` in `installer/main_windows.go` bumped
 - [ ] `## Interface:` lists the current Classic Era and Retail patches (e.g. `11509, 120100`) (see warcraft.wiki.gg/wiki/TOC_format)

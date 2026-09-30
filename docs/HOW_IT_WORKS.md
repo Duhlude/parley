@@ -29,11 +29,11 @@ WoW client ──(chat events)──▶ Parley addon ──(paints strip)──�
 ```
 
 - **`addon/Parley/Parley.lua`**: listens to `CHAT_MSG_*` events, filters chat types, strips colour codes and links, and queues messages. It paints one message per frame on a 64×6 grid of textures in the top-left corner of the screen, sized so that one unit equals one physical pixel. The strip only appears while messages are being sent.
-- **Parley app** (Go, Windows API only):
+- **Parley app** (Go, Windows API only; source in `app/`):
   - `capture` / `decode.go`: finds the WoW window and copies the strip area about 28 times a second with GDI `BitBlt`, then decodes it.
   - `lang.go`: offline check that skips English (and fixes Brazilian shorthand).
   - `offline.go`, `engine.go`: the offline translator. Picks and downloads Firefox Translations models, and talks to `parley-mt.exe`.
-  - `deepl.go`: the optional DeepL client, with caching, gaming-term protection and casual tone.
+  - `deepl.go`, `azure.go`: the optional DeepL and Azure clients, with caching, gaming-term protection and casual tone.
   - `overlay_windows.go`, `chrome_windows.go`, `skins_windows.go`: the UI and skins.
   - `speech_windows.go`: microphone recording (winmm) and local transcription (`whisper-cli.exe`).
   - `installer/`: `Parley-Setup.exe`.
@@ -55,7 +55,7 @@ Payload (UTF-8): `type ␟ channelNumber ␟ channelName ␟ sender ␟ text`, w
 
 Capacity is 540 bytes per frame, which is more than WoW's 255-byte chat limit plus headers. Frames with a bad marker, bad calibration or a checksum mismatch are discarded, never shown. Each message stays on screen for `hold` seconds (0.1 by default), so the app, which samples every 35 ms, reads it several times.
 
-`go test .` runs the real addon code (in Lua 5.1 with a stubbed WoW API) to produce frames, and decodes them, including with gamma distortion and corrupted pixels.
+`go test ./...` runs the real addon code (in Lua 5.1 with a stubbed WoW API) to produce frames, and decodes them, including with gamma distortion and corrupted pixels.
 
 ## Retail
 

@@ -71,7 +71,7 @@ Run **`Parley-Setup.exe`** from the [Releases](../../releases) page. It installs
 | [INSTALL.txt](INSTALL.txt) | Step-by-step installation |
 | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | Using Parley: replies, voice, skins, commands, troubleshooting |
 | [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) | Architecture and the pixel-strip protocol |
-| [docs/BUILDING.md](docs/BUILDING.md) | Building the app, installer and addon from source |
+| [docs/BUILDING.md](docs/BUILDING.md) | Building from source, and the repository layout |
 | [PRIVACY.md](PRIVACY.md) | What data goes where |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | Credits and licenses of included components |

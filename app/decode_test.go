@@ -53,7 +53,7 @@ func io_ReadFull(r *bufio.Reader, b []byte) (int, error) {
 }
 
 func TestDecodeFromLuaEncoder(t *testing.T) {
-	data, err := os.ReadFile("test/out/cases.txt")
+	data, err := os.ReadFile("../test/out/cases.txt")
 	if err != nil {
 		t.Skip("run: cd test && lua5.1 gen.lua out")
 	}
@@ -62,7 +62,7 @@ func TestDecodeFromLuaEncoder(t *testing.T) {
 		var hx string
 		fmt.Sscan(line, &n, &cs, &seq, &hx)
 		want, _ := hex.DecodeString(hx)
-		img := loadPPM(t, fmt.Sprintf("test/out/case%d.ppm", n))
+		img := loadPPM(t, fmt.Sprintf("../test/out/case%d.ppm", n))
 		got := FindCellSize(img, 2)
 		if got != cs {
 			t.Fatalf("case %d: cell size %d, want %d", n, got, cs)

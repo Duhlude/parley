@@ -1,10 +1,28 @@
 # Building Parley
 
+## Repository layout
+
+```
+app/          Parley.exe source (Go, package main), icons/version resource, tests
+addon/        the WoW addon (addon/Parley) and embed.go, which bundles it into Parley.exe
+installer/    Parley-Setup.exe source
+bin/          prebuilt helpers shipped with Parley: parley-mt.exe, whisper-cli.exe
+engine/       source and build script for parley-mt.exe
+internal/     small vendored libraries (zstd decoder)
+tools/        code generators, translation catalogs, the benchmark launcher
+test/         addon tests (Lua) that also produce the frames the Go decoder tests read
+third_party/  licenses of bundled components
+docs/         guides, release notes
+assets/       logo and screenshots
+```
+
+Build outputs (`Parley.exe`, `Parley-Setup.exe`, `Parley-addon-*.zip`, `installer/payload/`) land in the root and are git-ignored.
+
 ## Requirements
 
 - **Go 1.24+**: https://go.dev/dl/ . The app and installer use only Go's standard library and need no cgo.
-- **whisper-cli.exe**: prebuilt copy included in the repository; to build it yourself, see below.
-- **parley-mt.exe** (offline translator): prebuilt copy included; to rebuild it, run `engine/build-engine.sh` on Linux with MinGW-w64 (see `engine/README.md`).
+- **whisper-cli.exe**: prebuilt copy included in `bin/`; to build it yourself, see below.
+- **parley-mt.exe** (offline translator): prebuilt copy included in `bin/`; to rebuild it, run `engine/build-engine.sh` on Linux with MinGW-w64 (see `engine/README.md`).
 - Optional: **Lua 5.1** to run the addon-encoder test.
 
 ## One command (Windows)
@@ -24,7 +42,7 @@ This produces:
 ## By hand
 
 ```
-go build -trimpath -ldflags "-s -w -H windowsgui" -o Parley.exe .
+go build -trimpath -ldflags "-s -w -H windowsgui" -o Parley.exe ./app
 ```
 
 Cross-compiling from Linux or macOS works the same with `GOOS=windows GOARCH=amd64`.
@@ -33,9 +51,9 @@ The installer embeds everything in `installer/payload/` (which is git-ignored), 
 
 ```
 installer/payload/Parley.exe
-installer/payload/whisper-cli.exe
-installer/payload/parley-mt.exe
-installer/payload/whisper-cli-LICENSE.txt
+installer/payload/whisper-cli.exe          (from bin/)
+installer/payload/parley-mt.exe            (from bin/)
+installer/payload/whisper-cli-LICENSE.txt  (from bin/)
 installer/payload/README.md, INSTALL.txt, LICENSE, THIRD_PARTY_NOTICES.md, PRIVACY.md
 installer/payload/addon/Parley/Parley.toc, Parley.lua
 ```
@@ -46,10 +64,10 @@ Update `const version` in `installer/main_windows.go` for each release.
 
 ## Logo, icons and Windows resources
 
-`python3 tools/make_logo.py` (needs `cairosvg` and Pillow, plus the Cinzel and IPAGothic fonts) regenerates everything in `assets/logo/` and the addon's `Media/*.tga`. The icons and version info are compiled into the executables from `parley.rc` and `installer/installer.rc`:
+`python3 tools/make_logo.py` (needs `cairosvg` and Pillow, plus the Cinzel and IPAGothic fonts) regenerates everything in `assets/logo/` and the addon's `Media/*.tga`. The icons and version info are compiled into the executables from `app/parley.rc` and `installer/installer.rc`:
 
 ```
-x86_64-w64-mingw32-windres -O coff -i parley.rc -o rsrc_windows_amd64.syso
+x86_64-w64-mingw32-windres -O coff -i app/parley.rc -o app/rsrc_windows_amd64.syso
 cd installer && x86_64-w64-mingw32-windres -O coff -i installer.rc -o rsrc_windows_amd64.syso
 ```
 
@@ -61,15 +79,15 @@ App strings are keyed by their English text. Translations live in `tools/i18n/<l
 
 ```
 python3 tools/i18n_keys.py      # checks every catalog has every key
-python3 tools/gen_i18n.py       # writes i18n_data.go
+python3 tools/gen_i18n.py       # writes app/i18n_data.go
 python3 tools/gen_addon_i18n.py # writes addon/Parley/Locale.lua
 ```
 
 ## Tests
 
 ```
-cd test && lua5.1 gen.lua out && cd ..
-go test .
+mkdir -p test/out && cd test && lua5.1 gen.lua out && lua5.1 ui_test.lua && cd ..
+go test ./...
 ```
 
 `gen.lua` runs the real addon code against a stubbed WoW API and writes pixel frames (including gamma distortion). `go test` decodes them, checks that corrupted frames are rejected, and tests language detection, shorthand expansion, the DeepL client (against a local mock server) and the offline model catalog, download, zstd/SHA-256 checks and pivoting (against a mock model server and a fake engine).

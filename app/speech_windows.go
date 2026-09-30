@@ -320,9 +320,8 @@ func ensureModel(lang string) (string, error) {
 }
 
 func whisperExe() (string, error) {
-	exe, _ := os.Executable()
-	p := filepath.Join(filepath.Dir(exe), "whisper-cli.exe")
-	if _, err := os.Stat(p); err != nil {
+	p := helperExe("whisper-cli.exe")
+	if p == "" {
 		return "", errors.New("whisper-cli.exe is missing from the Parley folder.")
 	}
 	return p, nil

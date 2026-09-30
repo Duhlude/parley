@@ -29,7 +29,7 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           addon=$(grep -m1 '^## Version:' addon/Parley/Parley.toc | awk '{print $3}' | tr -d '\r')
           echo "addon=$addon" >> "$GITHUB_OUTPUT"
-          for f in installer/main_windows.go version.go; do
+          for f in installer/main_windows.go app/version.go; do
             if ! grep -q "ersion = \"$ver\"" "$f"; then
               echo "::error::$f says a different version than the tag $tag. Bump it first."
               exit 1
@@ -43,13 +43,13 @@ jobs:
           go test ./...
 
       - name: Build Parley.exe
-        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H windowsgui" -o Parley.exe .
+        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H windowsgui" -o Parley.exe ./app
 
       - name: Build the installer
         run: |
           p=installer/payload
           rm -rf "$p" && mkdir -p "$p/third_party" "$p/addon"
-          cp Parley.exe parley-mt.exe whisper-cli.exe whisper-cli-LICENSE.txt \
+          cp Parley.exe bin/parley-mt.exe bin/whisper-cli.exe bin/whisper-cli-LICENSE.txt \
              README.md INSTALL.txt LICENSE THIRD_PARTY_NOTICES.md PRIVACY.md CHANGELOG.md "$p/"
           cp third_party/* "$p/third_party/"
           cp -r addon/Parley "$p/addon/"

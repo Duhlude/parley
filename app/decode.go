@@ -1,7 +1,7 @@
 package main
 
 // Decoder for the pixel strip painted by the Parley addon.
-// See the protocol notes at the top of addon/Parley/Parley.lua.
+// See the protocol notes at the top of ../addon/Parley/Parley.lua.
 
 import (
 	"errors"

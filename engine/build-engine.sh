@@ -38,5 +38,5 @@ cmake -G Ninja ../bt -DCMAKE_TOOLCHAIN_FILE="$(cd ../.. && pwd)/mingw.cmake" -DC
   -DCMAKE_CXX_FLAGS="-Wno-format -DPCRE2_STATIC" \
   -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc -static-libstdc++" -DCMAKE_CXX_STANDARD_LIBRARIES="-lshlwapi"
 ninja parley-mt
-x86_64-w64-mingw32-strip -o ../../../parley-mt.exe app/parley-mt.exe
-echo "Built parley-mt.exe"
+x86_64-w64-mingw32-strip -o ../../../bin/parley-mt.exe app/parley-mt.exe
+echo "Built bin/parley-mt.exe"
