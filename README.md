@@ -2,7 +2,12 @@
 
 # Parley
 
-**Live chat translation for World of Warcraft Classic Era**, with beta support for Anniversary realms, Mists of Pandaria Classic and Retail.
+<p align="center">
+  <a href="https://www.curseforge.com/wow/addons/parley"><img src="https://img.shields.io/badge/CurseForge-Parley-F16436?logo=curseforge&logoColor=white" alt="Parley on CurseForge"></a>
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/Duhlude/parley?label=app" alt="Latest app release"></a>
+</p>
+
+**Live chat translation for World of Warcraft Classic Era**, with beta support for Anniversary realms, Mists of Pandaria Classic, Retail and the WoW: Forever beta.
 
 Players from Brazil, Russia, Spain, Germany and everywhere else share realms. Parley translates their chat into your language as it arrives, and translates your replies back into theirs. Type or speak your reply; Parley copies it, ready to paste.
 
@@ -66,7 +71,9 @@ The full explanation is in [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 
 ## Install
 
-Run **`Parley-Setup.exe`** from the [Releases](../../releases) page. It installs the app, puts the addon into your WoW folder, and adds shortcuts. Step-by-step instructions, including installing the addon by hand, are in **[INSTALL.txt](INSTALL.txt)**.
+Run **`Parley-Setup.exe`** from the [Releases](../../releases) page. It installs the app, puts the addon into your WoW folder, and adds shortcuts.
+
+The addon is also on **[CurseForge](https://www.curseforge.com/wow/addons/parley)**, so addon managers keep it updated. You still need the desktop app from Releases; the addon on its own doesn't translate. Step-by-step instructions, including installing the addon by hand, are in **[INSTALL.txt](INSTALL.txt)**.
 
 ## Documentation
 
