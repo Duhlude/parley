@@ -170,8 +170,9 @@ func installAddon(wowPath string) (string, error) {
 
 // wowFlavors are the game folders Parley supports, under the World of Warcraft
 // folder: Classic Era (incl. Hardcore and Season of Discovery), the Anniversary
-// realms, progression Classic (currently Mists of Pandaria) and Retail.
-var wowFlavors = []string{"_classic_era_", "_anniversary_", "_classic_", "_retail_"}
+// realms, progression Classic (currently Mists of Pandaria), Retail, and the
+// Classic beta folder (where the WoW: Forever beta installs).
+var wowFlavors = []string{"_classic_era_", "_anniversary_", "_classic_", "_retail_", "_classic_beta_"}
 
 // wowInstalls returns the folder you picked plus the other supported game
 // folders next to it (e.g. _retail_ beside _classic_era_) that exist.

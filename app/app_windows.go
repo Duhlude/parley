@@ -337,8 +337,14 @@ func wowPIDs() map[uint32]bool {
 	var pe syscall.ProcessEntry32
 	pe.Size = uint32(unsafe.Sizeof(pe))
 	for err = syscall.Process32First(snap, &pe); err == nil; err = syscall.Process32Next(snap, &pe) {
-		if wowExes[strings.ToLower(syscall.UTF16ToString(pe.ExeFile[:]))] {
+		name := strings.ToLower(syscall.UTF16ToString(pe.ExeFile[:]))
+		switch {
+		case wowExes[name]:
 			out[pe.ProcessID] = true
+		case strings.HasPrefix(name, "wow") && strings.HasSuffix(name, ".exe"):
+			// Maybe a WoW build with a new program name (a beta, WoW: Forever…):
+			// accepted only if its window is WoW's game window (checked below).
+			out[pe.ProcessID] = false
 		}
 	}
 	return out
@@ -354,7 +360,8 @@ var (
 		}
 		var pid uint32
 		pGetWindowThreadProcessId.Call(h, uintptr(unsafe.Pointer(&pid)))
-		if !enumPIDs[pid] {
+		known, ok := enumPIDs[pid]
+		if !ok || (!known && windowClass(h) != "GxWindowClass") {
 			return 1
 		}
 		r := clientRect(h)
@@ -364,6 +371,15 @@ var (
 		return 1
 	})
 )
+
+var pGetClassNameW = user32.NewProc("GetClassNameW")
+
+// windowClass returns a window's class name (WoW's game window is "GxWindowClass").
+func windowClass(h uintptr) string {
+	var buf [64]uint16
+	n, _, _ := pGetClassNameW.Call(h, uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)))
+	return syscall.UTF16ToString(buf[:n])
+}
 
 func findWow() uintptr {
 	enumBest, enumBestArea = 0, 0

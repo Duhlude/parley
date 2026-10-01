@@ -1,5 +1,11 @@
 # Changelog
 
+## App 1.9.3 · Addon 1.6.2 (2026-09-30)
+
+### Added
+- **WoW: Forever beta support (beta).** Addon 1.6.2 lists Forever's interface number (16001), and the app and installer also put the addon into the `_classic_beta_` folder the Forever beta uses.
+- The app now also recognises WoW builds with a new program name (betas, Forever) by their game window, so a new client doesn't leave Parley stuck on "Waiting for WoW".
+
 ## App 1.9.2 · Addon 1.6.1 (2026-09-30)
 
 ### Changed

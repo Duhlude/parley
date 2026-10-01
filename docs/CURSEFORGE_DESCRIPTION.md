@@ -1,6 +1,6 @@
 # Parley
 
-**Live chat translation for Classic Era.** Anniversary, Mists of Pandaria Classic and Retail are supported in beta. Read what Brazilian, Russian, Spanish, German and other players are saying as they type, and answer them in their own language.
+**Live chat translation for Classic Era.** Anniversary, Mists of Pandaria Classic, Retail and the WoW: Forever beta are supported in beta. Read what Brazilian, Russian, Spanish, German and other players are saying as they type, and answer them in their own language.
 
 ![Parley translating French, Japanese, Chinese and Korean chat in WoW Classic Era](https://raw.githubusercontent.com/Duhlude/parley/main/assets/screenshots/in-game.jpg)
 

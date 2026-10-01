@@ -59,7 +59,7 @@ Capacity is 540 bytes per frame, which is more than WoW's 255-byte chat limit pl
 
 ## Other WoW versions
 
-The same addon loads on Classic Era, the Anniversary realms, Mists of Pandaria Classic and Retail (`## Interface: 11509, 20506, 50504, 120100, 120105`), and the app installs it into every one of those game folders it finds (`_classic_era_`, `_anniversary_`, `_classic_`, `_retail_`). All four run the modern client, so the addon code and the strip protocol are identical.
+The same addon loads on Classic Era, the Anniversary realms, Mists of Pandaria Classic and Retail (`## Interface: 11509, 16001, 20506, 50504, 120100, 120105`), and the app installs it into every one of those game folders it finds (`_classic_era_`, `_anniversary_`, `_classic_`, `_retail_`). All four run the modern client, so the addon code and the strip protocol are identical.
 
 ### Retail
 
